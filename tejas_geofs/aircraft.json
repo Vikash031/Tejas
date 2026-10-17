@@ -5,11 +5,11 @@
     "scale": 1,
     "mass": 6560,
     "tensorFactor": 0.02,
-    "dragFactor": 1.25,
+    "dragFactor": 1.2,
     "com": [
       0,
       -0.5,
-      0
+      0.0
     ],
     "gearTravelTime": 5,
     "flapsTravelTime": 0,
@@ -23,7 +23,7 @@
     "driveRatio": 0.3,
     "engineInertia": 0.8,
     "startupTime": 8,
-    "startAltitude": 1.6,
+    "startAltitude": 1.45,
     "startTilt": 0,
     "minimumSpeed": 115,
     "cockpitScaleFix": 1,
@@ -61,17 +61,17 @@
       "cockpit": {
         "position": [
           0,
-          2.8,
+          3.1,
           0.95
         ],
         "orientation": [
           0,
-          -4,
+          -3,
           0
         ]
       },
       "follow": {
-        "distance": 28
+        "distance": 26
       },
       "Right Wing": {
         "position": [
@@ -143,11 +143,6 @@
         ]
       },
       {
-        "name": "canopy",
-        "parent": "body",
-        "model": "canopy.glb"
-      },
-      {
         "name": "mainWingLeft",
         "parent": "body",
         "type": "airfoil",
@@ -156,10 +151,10 @@
           -1.5,
           0.1
         ],
-        "area": 17.0,
+        "area": 18.0,
         "aspectRatio": 1.75,
         "stalls": true,
-        "stallIncidence": 24,
+        "stallIncidence": 26,
         "forceDirection": "Z",
         "points": {
           "forceSourcePoint": [
@@ -178,10 +173,10 @@
           -1.5,
           0.1
         ],
-        "area": 17.0,
+        "area": 18.0,
         "aspectRatio": 1.75,
         "stalls": true,
-        "stallIncidence": 24,
+        "stallIncidence": 26,
         "forceDirection": "Z",
         "points": {
           "forceSourcePoint": [
@@ -200,7 +195,7 @@
           -3.4,
           1.75
         ],
-        "area": 5.2,
+        "area": 5.4,
         "aspectRatio": 1.4,
         "stalls": true,
         "forceDirection": "X",
@@ -213,16 +208,15 @@
         }
       },
       {
-        "name": "leftAileron",
+        "name": "leftElevon",
         "parent": "body",
         "type": "airfoil",
-        "model": "leftAileron.glb",
         "position": [
           -2.85,
           -4.6,
           0.05
         ],
-        "area": 2.2,
+        "area": 2.4,
         "forceDirection": "Z",
         "points": {
           "forceSourcePoint": [
@@ -247,16 +241,15 @@
         ]
       },
       {
-        "name": "rightAileron",
+        "name": "rightElevon",
         "parent": "body",
         "type": "airfoil",
-        "model": "rightAileron.glb",
         "position": [
           2.85,
           -4.6,
           0.05
         ],
-        "area": 2.2,
+        "area": 2.4,
         "forceDirection": "Z",
         "points": {
           "forceSourcePoint": [
@@ -284,7 +277,6 @@
         "name": "rudder",
         "parent": "body",
         "type": "airfoil",
-        "model": "rudder.glb",
         "position": [
           0,
           -4.8,
@@ -325,7 +317,6 @@
         "name": "frontWheel",
         "parent": "body",
         "type": "wheel",
-        "model": "frontWheel.glb",
         "position": [
           0,
           3.8,
@@ -335,12 +326,12 @@
           [
             0,
             0,
-            -1.25
+            -1.05
           ]
         ],
         "suspension": {
-          "stiffness": 28,
-          "damping": 6
+          "stiffness": 30,
+          "damping": 7
         },
         "animations": [
           {
@@ -348,12 +339,6 @@
             "axis": "Z",
             "value": "yaw",
             "ratio": 16
-          },
-          {
-            "type": "rotate",
-            "axis": "X",
-            "value": "gearPosition",
-            "ratio": -95
           },
           {
             "type": "hide",
@@ -366,7 +351,6 @@
         "name": "leftGear",
         "parent": "body",
         "type": "wheel",
-        "model": "leftGear.glb",
         "position": [
           -1.2,
           -1.1,
@@ -376,20 +360,14 @@
           [
             0,
             0,
-            -1.35
+            -1.15
           ]
         ],
         "suspension": {
-          "stiffness": 38,
-          "damping": 7
+          "stiffness": 40,
+          "damping": 8
         },
         "animations": [
-          {
-            "type": "rotate",
-            "axis": "Y",
-            "value": "gearPosition",
-            "ratio": 85
-          },
           {
             "type": "hide",
             "value": "gearPosition",
@@ -401,7 +379,6 @@
         "name": "rightGear",
         "parent": "body",
         "type": "wheel",
-        "model": "rightGear.glb",
         "position": [
           1.2,
           -1.1,
@@ -411,20 +388,14 @@
           [
             0,
             0,
-            -1.35
+            -1.15
           ]
         ],
         "suspension": {
-          "stiffness": 38,
-          "damping": 7
+          "stiffness": 40,
+          "damping": 8
         },
         "animations": [
-          {
-            "type": "rotate",
-            "axis": "Y",
-            "value": "gearPosition",
-            "ratio": -85
-          },
           {
             "type": "hide",
             "value": "gearPosition",
