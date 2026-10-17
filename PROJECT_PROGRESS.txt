@@ -1,0 +1,49 @@
+================================================================================
+PROJECT PROGRESS TRACKER: HAL TEJAS Mk1 FOR GEOFS
+================================================================================
+Aircraft: HAL Tejas Mk1 (Single-seat Lightweight Multi-role Fighter)
+Target Simulator: GeoFS (WebGL / Cesium based)
+Repository: proj_tejas / tejas_geofs
+Created: 2026-10-17
+Last Updated: 2026-10-17 20:19 IST
+================================================================================
+
+[STATUS OVERVIEW]
+Current Phase: Phase 12 Complete (Handover & Testing Ready)
+Validation Suite: 22 / 22 Automated Checks PASSED (0 FAILED)
+Shader Status: Fixed glTF TEXCOORD_0 and NORMAL primitive attributes.
+               Eliminated Cesium WebGL shadow cast 'undefined' identifier crash.
+
+================================================================================
+[CHANGELOG / RECENT ACTIONS]
+- 2026-10-17 19:49: Environment inspected; Python 3.14 + Node.js v24 active.
+- 2026-10-17 19:53: Researched GeoFS schema, coordinate system (+Y fwd), and loaders.
+- 2026-10-17 19:55: Installed pygltflib and trimesh.
+- 2026-10-17 19:56: Authored tejas_geofs/GEOFS_REQUIREMENTS.md.
+- 2026-10-17 19:57: Generated 2048x2048 IAF camouflage texture atlas and PBR maps.
+- 2026-10-17 19:58: Built complete HAL Tejas Mk1 3D model & modular parts.
+- 2026-10-17 19:59: Embedded PBR textures into glTF binary buffers.
+- 2026-10-17 20:01: Created GeoFS aircraft.json & definition.json.
+- 2026-10-17 20:03: Calibrated Z height to exact 4.40m HAL specification.
+- 2026-10-17 20:04: Ran automated validation: 22 passed, 0 failed.
+- 2026-10-17 20:05: Rendered all 8 multi-angle preview screenshots.
+- 2026-10-17 20:06: Built interactive 3D Web Viewer & GeoFS test loader.
+- 2026-10-17 20:07: Handover complete. All assets and documentation ready.
+- 2026-10-17 20:12: Upgraded geofs_test_loader.js to 100% standalone in-memory mode.
+- 2026-10-17 20:16: Fixed injection signature using parseRecord() + unloadAircraft().
+- 2026-10-17 20:19: Fixed Cesium WebGL fragment shader error: generated explicit TEXCOORD_0
+                    and NORMAL accessors in body.glb/tejas_mk1.glb, and clean solid PBR
+                    materials for canopy, gear, elevons, and rudder. Recompiled loader.
+- 2026-10-17 20:26: Fixed ground sinking and dull finish issues via rebuild_all_refined.py:
+                    1. Landing gear centered at (0,0,0) pivots with contact points at
+                       -1.25m / -1.35m; fuselage belly sit 1.10m elevated above tarmac.
+                    2. Enhanced texture vibrancy to crisp daylight IAF Ghost Grey with
+                       distinct dual-tone camouflage, IAF roundels, fin flash, radome.
+                    3. Adjusted PBR metallic (0.05) and roughness (0.35) for specular sunlight sheen.
+                    4. Recompiled standalone in-memory geofs_test_loader.js (370 KB).
+                    5. Automated validation suite: 22 passed, 0 failed.
+- 2026-10-17 20:32: Fixed mesh vertical orientation (nose pointing up instead of forward):
+                    Applied -90° X-axis rotation to all mesh geometry so Cesium's glTF
+                    Y-up convention maps correctly: fuselage (was Y) → -Z (glTF forward),
+                    up (was Z) → Y (glTF up). Aircraft now lies horizontal as expected.
+================================================================================

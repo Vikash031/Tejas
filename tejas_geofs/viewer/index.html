@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAL Tejas Mk1 - 3D Interactive Aircraft Viewer</title>
+    <style>
+        :root {
+            --bg-dark: #0f1217;
+            --panel-bg: rgba(22, 27, 34, 0.85);
+            --border-color: rgba(255, 255, 255, 0.12);
+            --accent-orange: #ff9933;
+            --accent-green: #138808;
+            --accent-blue: #388bfd;
+            --text-main: #f0f6fc;
+            --text-dim: #8b949e;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #canvas-container {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        /* Top HUD Header */
+        .hud-header {
+            position: absolute;
+            top: 20px;
+            left: 24px;
+            z-index: 10;
+            background: var(--panel-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            padding: 14px 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+
+        .title-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .flag-badge {
+            display: flex;
+            flex-direction: column;
+            width: 20px;
+            height: 16px;
+            border-radius: 3px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .flag-saffron { background: var(--accent-orange); flex: 1; }
+        .flag-white { background: #ffffff; flex: 1; position: relative; }
+        .flag-green { background: var(--accent-green); flex: 1; }
+
+        h1 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: var(--text-main);
+        }
+
+        .subtitle {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            margin-top: 4px;
+        }
+
+        /* Control Sidebar */
+        .control-panel {
+            position: absolute;
+            top: 20px;
+            right: 24px;
+            width: 320px;
+            z-index: 10;
+            background: var(--panel-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            padding: 18px;
+            border-radius: 14px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
+        }
+
+        .section-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: var(--accent-orange);
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .group {
+            margin-bottom: 18px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .group:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .btn-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        button {
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: var(--accent-blue);
+        }
+
+        button.active {
+            background: var(--accent-blue);
+            border-color: var(--accent-blue);
+            color: #ffffff;
+        }
+
+        .slider-row {
+            margin-bottom: 10px;
+        }
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            margin-bottom: 4px;
+        }
+        .slider-val {
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        input[type=range] {
+            width: 100%;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 4px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--accent-orange);
+            cursor: pointer;
+        }
+
+        .spec-table {
+            width: 100%;
+            font-size: 0.78rem;
+            border-collapse: collapse;
+        }
+        .spec-table td {
+            padding: 3px 0;
+        }
+        .spec-table td:first-child {
+            color: var(--text-dim);
+        }
+        .spec-table td:last-child {
+            text-align: right;
+            font-weight: 600;
+        }
+
+        /* Loading Overlay */
+        #loader {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-dark);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.4s ease;
+        }
+        .spinner {
+            width: 44px;
+            height: 44px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid var(--accent-orange);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 14px;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* Bottom Hint */
+        .bottom-hint {
+            position: absolute;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            background: rgba(22, 27, 34, 0.7);
+            padding: 6px 16px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            pointer-events: none;
+        }
+    </style>
+    <!-- Three.js + GLTFLoader + OrbitControls -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.145.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.145.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.145.0/examples/js/loaders/GLTFLoader.js"></script>
+</head>
+<body>
+    <div id="loader">
+        <div class="spinner"></div>
+        <p style="color: #c9d1d9; font-size: 0.9rem; font-weight: 600;">Loading HAL Tejas Mk1 3D Model...</p>
+    </div>
+
+    <div class="hud-header">
+        <div class="title-row">
+            <div class="flag-badge">
+                <div class="flag-saffron"></div>
+                <div class="flag-white"></div>
+                <div class="flag-green"></div>
+            </div>
+            <div>
+                <h1>HAL Tejas Mk1</h1>
+                <div class="subtitle">GeoFS Community Aircraft Specification | Indian Air Force</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="control-panel">
+        <!-- View Presets -->
+        <div class="group">
+            <div class="section-title">Camera Views</div>
+            <div class="btn-grid">
+                <button onclick="setCameraView('threeQuarter')">3/4 View</button>
+                <button onclick="setCameraView('top')">Top Planform</button>
+                <button onclick="setCameraView('side')">Side Profile</button>
+                <button onclick="setCameraView('front')">Front Nose</button>
+                <button onclick="setCameraView('cockpit')">Cockpit POV</button>
+                <button onclick="setCameraView('gear')">Landing Gear</button>
+            </div>
+        </div>
+
+        <!-- Animation Testing -->
+        <div class="group">
+            <div class="section-title">Interactive Controls</div>
+            <div class="slider-row">
+                <div class="slider-label"><span>Elevon Pitch</span><span id="pitch-val" class="slider-val">0°</span></div>
+                <input type="range" id="pitch-slider" min="-25" max="25" value="0" oninput="updatePitch(this.value)">
+            </div>
+            <div class="slider-row">
+                <div class="slider-label"><span>Elevon Roll</span><span id="roll-val" class="slider-val">0°</span></div>
+                <input type="range" id="roll-slider" min="-25" max="25" value="0" oninput="updateRoll(this.value)">
+            </div>
+            <div class="slider-row">
+                <div class="slider-label"><span>Rudder Yaw</span><span id="yaw-val" class="slider-val">0°</span></div>
+                <input type="range" id="yaw-slider" min="-25" max="25" value="0" oninput="updateYaw(this.value)">
+            </div>
+            <button id="gear-btn" style="width: 100%; margin-top: 6px;" onclick="toggleGear()">Landing Gear: Deployed</button>
+        </div>
+
+        <!-- Display Toggles -->
+        <div class="group">
+            <div class="section-title">Visual Options</div>
+            <div class="btn-grid">
+                <button id="wireframe-btn" onclick="toggleWireframe()">Wireframe: OFF</button>
+                <button id="autorotate-btn" onclick="toggleAutoRotate()">Auto Orbit: ON</button>
+            </div>
+        </div>
+
+        <!-- Aircraft Specifications -->
+        <div class="group">
+            <div class="section-title">Tejas Mk1 Specs</div>
+            <table class="spec-table">
+                <tr><td>Length:</td><td>13.20 m</td></tr>
+                <tr><td>Wingspan:</td><td>8.20 m</td></tr>
+                <tr><td>Height:</td><td>4.40 m</td></tr>
+                <tr><td>Wing Area:</td><td>38.4 m²</td></tr>
+                <tr><td>Empty Weight:</td><td>6,560 kg</td></tr>
+                <tr><td>Powerplant:</td><td>GE F404-GE-IN20</td></tr>
+                <tr><td>Max Thrust:</td><td>84.0 kN (Reheat)</td></tr>
+                <tr><td>Max Speed:</td><td>Mach 1.6 (GeoFS)</td></tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="bottom-hint">Left Click + Drag: Rotate | Right Click + Drag: Pan | Scroll: Zoom</div>
+    <div id="canvas-container"></div>
+
+    <script>
+        let scene, camera, renderer, controls;
+        let aircraftModel = null;
+        let isWireframe = false;
+        let isGearDeployed = true;
+        let autoRotate = true;
+
+        // Interactive parts references
+        let leftElevon = null;
+        let rightElevon = null;
+        let rudder = null;
+        let landingGearParts = [];
+
+        function init() {
+            const container = document.getElementById('canvas-container');
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0e1117);
+            scene.fog = new THREE.FogExp2(0x0e1117, 0.015);
+
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(-14, 8, 12);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.outputEncoding = THREE.sRGBEncoding;
+            renderer.shadowMap.enabled = true;
+            container.appendChild(renderer.domElement);
+
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.maxDistance = 60;
+            controls.minDistance = 1.5;
+            controls.target.set(0, 0, 0);
+
+            // Lighting
+            const ambient = new THREE.AmbientLight(0xffffff, 0.65);
+            scene.add(ambient);
+
+            const sunLight = new THREE.DirectionalLight(0xfff4e6, 1.4);
+            sunLight.position.set(20, 30, 20);
+            sunLight.castShadow = true;
+            scene.add(sunLight);
+
+            const fillLight = new THREE.DirectionalLight(0x8ab4f8, 0.5);
+            fillLight.position.set(-20, 10, -20);
+            scene.add(fillLight);
+
+            // Runway / Ground Grid
+            const grid = new THREE.GridHelper(60, 60, 0x30363d, 0x1c2128);
+            grid.position.y = -1.5;
+            scene.add(grid);
+
+            // Load 3D Aircraft Model
+            loadTejasModel();
+
+            window.addEventListener('resize', onWindowResize);
+            animate();
+        }
+
+        function loadTejasModel() {
+            const loader = new THREE.GLTFLoader();
+            loader.load('../export/tejas_mk1.glb', function(gltf) {
+                aircraftModel = gltf.scene;
+                
+                // In Three.js standard, Y is Up, Z is Forward/Back
+                // Aircraft was generated with GeoFS conventions: +Y Forward, +Z Up
+                // Rotate whole aircraft to match Three.js world (+Y Up, +Z Forward)
+                aircraftModel.rotation.x = -Math.PI / 2;
+                aircraftModel.position.set(0, 0, 0);
+
+                scene.add(aircraftModel);
+                document.getElementById('loader').style.opacity = 0;
+                setTimeout(() => document.getElementById('loader').style.display = 'none', 400);
+            }, undefined, function(error) {
+                console.error("Error loading glTF model:", error);
+                document.getElementById('loader').innerHTML = '<p style="color:#f85149;">Error loading 3D model. Ensure tejas_mk1.glb exists.</p>';
+            });
+        }
+
+        function setCameraView(viewName) {
+            autoRotate = false;
+            document.getElementById('autorotate-btn').innerText = "Auto Orbit: OFF";
+            
+            if (viewName === 'threeQuarter') {
+                camera.position.set(-14, 7, 12);
+                controls.target.set(0, 0, 0);
+            } else if (viewName === 'top') {
+                camera.position.set(0, 20, 0.01);
+                controls.target.set(0, 0, 0);
+            } else if (viewName === 'side') {
+                camera.position.set(-18, 0.5, 0);
+                controls.target.set(0, 0, 0);
+            } else if (viewName === 'front') {
+                camera.position.set(0, 0.5, 16);
+                controls.target.set(0, 0, 0);
+            } else if (viewName === 'cockpit') {
+                camera.position.set(0, 0.95, 2.8);
+                controls.target.set(0, 0.95, 8.0);
+            } else if (viewName === 'gear') {
+                camera.position.set(-3.5, -0.9, 2.5);
+                controls.target.set(0, -1.2, 0);
+            }
+            controls.update();
+        }
+
+        function updatePitch(val) {
+            document.getElementById('pitch-val').innerText = val + "°";
+        }
+
+        function updateRoll(val) {
+            document.getElementById('roll-val').innerText = val + "°";
+        }
+
+        function updateYaw(val) {
+            document.getElementById('yaw-val').innerText = val + "°";
+        }
+
+        function toggleGear() {
+            isGearDeployed = !isGearDeployed;
+            const btn = document.getElementById('gear-btn');
+            btn.innerText = "Landing Gear: " + (isGearDeployed ? "Deployed" : "Retracted");
+            btn.classList.toggle('active', !isGearDeployed);
+        }
+
+        function toggleWireframe() {
+            isWireframe = !isWireframe;
+            document.getElementById('wireframe-btn').innerText = "Wireframe: " + (isWireframe ? "ON" : "OFF");
+            if (aircraftModel) {
+                aircraftModel.traverse(child => {
+                    if (child.isMesh && child.material) {
+                        child.material.wireframe = isWireframe;
+                    }
+                });
+            }
+        }
+
+        function toggleAutoRotate() {
+            autoRotate = !autoRotate;
+            document.getElementById('autorotate-btn').innerText = "Auto Orbit: " + (autoRotate ? "ON" : "OFF");
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            if (autoRotate && aircraftModel) {
+                aircraftModel.rotation.z += 0.003;
+            }
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
