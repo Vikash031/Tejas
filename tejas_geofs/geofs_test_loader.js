@@ -40,7 +40,7 @@
                 "startTilt": 0,
                 "minimumSpeed": 115,
                 "cockpitScaleFix": 1,
-                "autopilot": true,
+                "autopilot": false,
                 "Vspeeds": {
                     "VS0": 115,
                     "VS": 125,
@@ -87,15 +87,37 @@
                 geofs.aircraft.instance.unloadAircraft();
             }
 
-            // Set fullPath to empty string so GeoFS doesn't prepend anything to the model URL
             geofs.aircraft.instance.fullPath = "";
             geofs.aircraft.instance.aircraftRecord = { id: 9999, name: "HAL Tejas LCA Navy", fullPath: "" };
             geofs.aircraft.instance.init(definition, currentCoords);
 
-            if (geofs.flyToNotification) {
-                geofs.flyToNotification("HAL Tejas LCA Navy Active! Throttle '0'-'9', Gear 'G', Cockpit 'C'.");
+            // 1. Unpause simulator & resume game loop
+            geofs.doPause(0);
+
+            // 2. Disengage autopilot so player has full manual throttle and control
+            if (geofs.autopilot) {
+                geofs.autopilot.turnOff();
             }
-            console.log("%c[HAL TEJAS LCA NAVY] AIRCRAFT READY FOR FLIGHT! ENJOY!", "color: #138808; font-weight: bold; font-size: 16px;");
+
+            // 3. Release brakes and clear stall state
+            geofs.animation.values.brakes = 0;
+            geofs.animation.values.parkingBrake = 0;
+
+            // 4. Reset & activate camera (Mode 0 = Follow camera)
+            if (geofs.camera) {
+                geofs.camera.reset();
+                geofs.camera.set(0);
+            }
+
+            // 5. Start GE F404 turbofan engine
+            if (typeof geofs.aircraft.instance.startEngine === "function") {
+                geofs.aircraft.instance.startEngine();
+            }
+
+            if (geofs.flyToNotification) {
+                geofs.flyToNotification("HAL Tejas LCA Navy Active! Press '9' for Full Throttle, 'G' for Gear, 'C' for Cockpit.");
+            }
+            console.log("%c[HAL TEJAS LCA NAVY] AIRCRAFT READY FOR TAKEOFF! ENJOY YOUR FLIGHT!", "color: #138808; font-weight: bold; font-size: 16px;");
         } catch (err) {
             console.error("[HAL TEJAS LCA NAVY] Error:", err);
             alert("[HAL TEJAS LCA NAVY] Error: " + err.message);
