@@ -117,12 +117,9 @@
             geofs.animation.values.brakes = 0;
             geofs.animation.values.parkingBrake = 0;
 
-            // 5. Reset & activate camera properly using GeoFS modes
+            // 5. Reset camera to default follow view
             if (geofs.camera) {
                 geofs.camera.reset();
-                if (geofs.camera.modes && geofs.camera.modes.length > 0) {
-                    geofs.camera.set(geofs.camera.modes[0]);
-                }
             }
 
             // 6. Start GE F404 turbofan engine
@@ -163,4 +160,5 @@
     // Auto-trigger file dialog
     input.click();
     console.log("%c[HAL TEJAS LCA NAVY] Please select 'tejas_navy_geofs.glb' from your file dialog!", "color: #ff9933; font-weight: bold; font-size: 13px;");
+    window.loadTejas = setupTejasNavyInjector;
 })();
