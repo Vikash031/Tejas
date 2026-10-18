@@ -86,9 +86,14 @@ Git Author: Configured to Vikash031 (Vikash031@users.noreply.github.com)
                     8. Flight Controls & Simulator Unpause Fix:
                        - Fixed simulator pause state: GeoFS internal aircraft reload triggers geofs.doPause(1); added automatic geofs.doPause(0) unpause call upon injection.
                        - Disabled automatic autopilot engagement (autopilot: false and geofs.autopilot.turnOff()) which was overriding user controls and triggering stall at 0 knots.
-                       - Added camera reset (geofs.camera.set(0)), brake release, and engine auto-start.
-                    9. Synced and pushed cleanly to https://github.com/Vikash031/Tejas.git under Vikash031.
+                       - Added camera reset (geofs.camera.modes[0]), brake release, and engine auto-start.
+                    9. Cockpit Glass Transparency & Ground Rolling Fix:
+                       - Assigned dedicated transparent material to Glass_2 and Windshield_glass with alphaMode="BLEND", doubleSided=true, 20% cyan tint opacity (0.20), low roughness (0.04) and metallic sheen (0.85).
+                       - Removed frame ground collision points at Z=0.0 from body.collisionPoints which was creating rigid body frame friction (1.4) against the tarmac; aircraft now rolls smoothly on low-friction wheels (0.0001).
+                       - Added controls.reset(), geofs.aircraft.instance.reset(), and instruments.reset() for clean flight initiation.
+                    10. Synced and pushed cleanly to https://github.com/Vikash031/Tejas.git under Vikash031.
 ================================================================================
+
 
 
 

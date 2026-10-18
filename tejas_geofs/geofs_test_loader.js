@@ -68,8 +68,11 @@
                         "name": "body",
                         "model": modelBlobUrl,
                         "collisionPoints": [
-                            [0, 6.2, 1.2], [0, -6.6, 1.4], [-4.2, -2.5, 1.2], [4.2, -2.5, 1.2],
-                            [0, 3.2, 0.0], [-1.4, -1.2, 0.0], [1.4, -1.2, 0.0]
+                            [0, 6.2, 1.2],       // Nose tip
+                            [0, -6.6, 1.4],      // Tail cone / exhaust
+                            [-4.2, -2.5, 1.2],   // Left wingtip
+                            [4.2, -2.5, 1.2],    // Right wingtip
+                            [0, -3.8, 4.8]       // Vertical stabilizer fin tip
                         ]
                     },
                     { "name": "mainWingLeft", "parent": "body", "type": "airfoil", "position": [-1.8, -1.2, 1.2], "area": 19.2, "aspectRatio": 1.75, "stalls": true, "stallIncidence": 26, "forceDirection": "Z", "points": { "forceSourcePoint": [0, 0, 0] } },
@@ -91,25 +94,38 @@
             geofs.aircraft.instance.aircraftRecord = { id: 9999, name: "HAL Tejas LCA Navy", fullPath: "" };
             geofs.aircraft.instance.init(definition, currentCoords);
 
-            // 1. Unpause simulator & resume game loop
+            // 1. Reset physics, controls, and instruments for clean flight
+            if (typeof controls !== "undefined" && controls.reset) {
+                controls.reset();
+            }
+            if (typeof geofs.aircraft.instance.reset === "function") {
+                geofs.aircraft.instance.reset();
+            }
+            if (typeof instruments !== "undefined" && instruments.reset) {
+                instruments.reset();
+            }
+
+            // 2. Unpause simulator & resume game loop
             geofs.doPause(0);
 
-            // 2. Disengage autopilot so player has full manual throttle and control
+            // 3. Disengage autopilot so player has full manual throttle and control
             if (geofs.autopilot) {
                 geofs.autopilot.turnOff();
             }
 
-            // 3. Release brakes and clear stall state
+            // 4. Release brakes and clear stall state
             geofs.animation.values.brakes = 0;
             geofs.animation.values.parkingBrake = 0;
 
-            // 4. Reset & activate camera (Mode 0 = Follow camera)
+            // 5. Reset & activate camera properly using GeoFS modes
             if (geofs.camera) {
                 geofs.camera.reset();
-                geofs.camera.set(0);
+                if (geofs.camera.modes && geofs.camera.modes.length > 0) {
+                    geofs.camera.set(geofs.camera.modes[0]);
+                }
             }
 
-            // 5. Start GE F404 turbofan engine
+            // 6. Start GE F404 turbofan engine
             if (typeof geofs.aircraft.instance.startEngine === "function") {
                 geofs.aircraft.instance.startEngine();
             }
