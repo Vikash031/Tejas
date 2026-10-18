@@ -5,14 +5,15 @@ Aircraft: HAL Tejas Mk1 (Single-seat Lightweight Multi-role Fighter)
 Target Simulator: GeoFS (WebGL / Cesium based)
 Repository: proj_tejas / tejas_geofs
 Created: 2026-10-17
-Last Updated: 2026-10-17 20:19 IST
+Last Updated: 2026-10-18 18:20 IST
 ================================================================================
 
 [STATUS OVERVIEW]
-Current Phase: Phase 12 Complete (Handover & Testing Ready)
+Current Phase: Phase 14 Complete (Indian Navy LCA Master 3D Model & Real Livery Integrated)
 Validation Suite: 22 / 22 Automated Checks PASSED (0 FAILED)
-Shader Status: Fixed glTF TEXCOORD_0 and NORMAL primitive attributes.
-               Eliminated Cesium WebGL shadow cast 'undefined' identifier crash.
+Model: Real HAL Tejas LCA Navy (NP-1/NP-2) 3D Model (1.2M faces, 38 MB GLB)
+Textures: 18 Authentic Indian Navy Decals & PBR Maps Embedded
+Git Author: Configured to Vikash031 (Vikash031@users.noreply.github.com)
 
 ================================================================================
 [CHANGELOG / RECENT ACTIONS]
@@ -56,4 +57,26 @@ Shader Status: Fixed glTF TEXCOORD_0 and NORMAL primitive attributes.
                        guaranteeing straight runway roll with zero left pull.
                     5. Automated validation suite: 22 / 22 checks PASSED.
                     6. Synced live with GitHub repository https://github.com/Vikash031/Tejas.git.
+- 2026-10-18 18:20: HAL Tejas LCA Navy Integration, Authentic Livery & Viewer Fixes:
+                    1. Authentic 3D Model: Exported real Tejas_Navy.obj (957k verts, 1.2M faces)
+                       into unified 38 MB GLB (tejas_navy_final.glb).
+                    2. Authentic Indian Navy Livery (No Black Aircraft): Fixed dark/black linear Kd
+                       values to authentic Indian Naval Air Arm Ghost Grey (#788A9B) upper surfaces,
+                       Light Compass Grey (#AEC0D0) belly, and dark composite slate (#384048) radome.
+                    3. 18 Embedded Textures: Preserved Tricolor fin flash on vertical stabilizer,
+                       Indian Navy Emblem, serial 3002, Navy Hindi/English, Tejas insignia,
+                       cockpit MFDs, HUD alpha, tire treads, and rescue markings.
+                    4. Transparent Cockpit Canopy: Set semi-transparent tinted glass (opacity 0.24,
+                       roughness 0.05) allowing visibility of cockpit interior, seat, and HUD.
+                    5. 3D Web Viewer Loading Bug Fix:
+                       - Fixed 404 URL mismatch (/tejas_geofs/export -> /export).
+                       - Added live MB download progress (% + MB loaded counter).
+                       - Added readyState-safe init lifecycle so viewer never hangs on "Initializing...".
+                       - Wrapped GLTF parsing in visual try/catch for immediate error feedback.
+                    6. Git Identity Fix:
+                       - Fixed author attribution from vikashm2 to Vikash031.
+                       - Configured repository local user.name "Vikash031" and
+                         user.email "Vikash031@users.noreply.github.com".
+                    7. Synced and pushed cleanly to https://github.com/Vikash031/Tejas.git.
 ================================================================================
+

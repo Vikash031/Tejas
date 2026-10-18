@@ -275,112 +275,125 @@ function buildScene(){
 
 // ─── Load Model ──────────────────────────────────────────────────────────────
 function loadModel(){
+    const ldrPct = document.getElementById('ldr-pct');
+    ldrPct.textContent = 'Connecting to server...';
+
     new THREE.GLTFLoader().load(
         '/export/tejas_navy_final.glb',
         (gltf)=>{
-            model = gltf.scene;
+            try {
+                ldrPct.textContent = 'Building 3D Mesh & Indian Navy Livery (1.2M polygons)...';
+                model = gltf.scene;
 
-            // Auto-fit — normalize to ~13m length
-            const box = new THREE.Box3().setFromObject(model);
-            const sz  = box.getSize(new THREE.Vector3());
-            const ctr = box.getCenter(new THREE.Vector3());
-            const scl = 13 / Math.max(sz.x,sz.y,sz.z);
-            model.scale.setScalar(scl);
+                // Auto-fit — normalize to ~13m length
+                const box = new THREE.Box3().setFromObject(model);
+                const sz  = box.getSize(new THREE.Vector3());
+                const ctr = box.getCenter(new THREE.Vector3());
+                const scl = 13 / Math.max(sz.x,sz.y,sz.z);
+                model.scale.setScalar(scl);
 
-            // Recenter: horizontal center, sit on ground
-            const box2 = new THREE.Box3().setFromObject(model);
-            model.position.set(-box2.getCenter(new THREE.Vector3()).x, -box2.min.y, -box2.getCenter(new THREE.Vector3()).z);
+                // Recenter: horizontal center, sit on ground
+                const box2 = new THREE.Box3().setFromObject(model);
+                model.position.set(-box2.getCenter(new THREE.Vector3()).x, -box2.min.y, -box2.getCenter(new THREE.Vector3()).z);
 
-            // Create pivot groups for control surfaces (world-space pivots)
-            pitchGroup      = new THREE.Group(); scene.add(pitchGroup);
-            rollLeftGroup   = new THREE.Group(); scene.add(rollLeftGroup);
-            rollRightGroup  = new THREE.Group(); scene.add(rollRightGroup);
-            rudderGroup     = new THREE.Group(); scene.add(rudderGroup);
+                // Create pivot groups for control surfaces (world-space pivots)
+                pitchGroup      = new THREE.Group(); scene.add(pitchGroup);
+                rollLeftGroup   = new THREE.Group(); scene.add(rollLeftGroup);
+                rollRightGroup  = new THREE.Group(); scene.add(rollRightGroup);
+                rudderGroup     = new THREE.Group(); scene.add(rudderGroup);
 
-            let mc=0, pc=0;
-            const glassDeferred=[];
+                let mc=0, pc=0;
 
-            model.traverse(child=>{
-                if(!child.isMesh) return;
-                mc++; pc += child.geometry.index ? child.geometry.index.count/3 : child.geometry.attributes.position.count/3;
-                child.castShadow=true; child.receiveShadow=true;
+                model.traverse(child=>{
+                    if(!child.isMesh) return;
+                    mc++; pc += child.geometry.index ? child.geometry.index.count/3 : child.geometry.attributes.position.count/3;
+                    child.castShadow=true; child.receiveShadow=true;
 
-                const raw = (child.name || '').toLowerCase().replace(/[\s\-]/g,'_');
-                const isGlass = GLASS_NAMES.has(raw);
+                    const raw = (child.name || '').toLowerCase().replace(/[\s\-]/g,'_');
+                    const isGlass = GLASS_NAMES.has(raw);
 
-                const applyMat = m => {
-                    if(!m || !m.isMaterial) return;
-                    if(isGlass){
-                        m.transparent=true; m.opacity=0.22;
-                        m.roughness=0.0; m.metalness=0.92;
-                        m.side=THREE.DoubleSide; m.depthWrite=false;
-                        m.color.set(0x88bbdd);
-                    } else {
-                        // Force fully opaque — fix trimesh illum 3 transparency bug
-                        m.transparent=false; m.opacity=1; m.depthWrite=true;
-                        m.alphaTest=0; m.side=THREE.FrontSide;
-                        if(raw.includes('fuselage')||raw.includes('nose')||raw.includes('body')){
-                            m.roughness=0.52; m.metalness=0.28;
-                        } else if(raw.includes('metal')||raw.includes('steel')||raw.includes('mirror')){
-                            m.roughness=0.1; m.metalness=0.97;
-                        } else if(raw.includes('missile')){
-                            m.roughness=0.18; m.metalness=0.9;
-                        } else if(raw.includes('tire')){
-                            m.roughness=0.95; m.metalness=0;
-                        } else if(raw.includes('emisson')){
-                            // Small indicator lights – set emissive, keep opaque
-                            m.emissive = new THREE.Color(raw.includes('red')?0xff2200:raw.includes('yellow')?0xff9900:0xffffff);
-                            m.emissiveIntensity = 0.8;  // always slightly on
+                    const applyMat = m => {
+                        if(!m || !m.isMaterial) return;
+                        if(isGlass){
+                            m.transparent=true; m.opacity=0.24;
+                            m.roughness=0.05; m.metalness=0.9;
+                            m.side=THREE.DoubleSide; m.depthWrite=false;
+                            m.color.set(0x70b0e0);
+                        } else {
+                            m.side=THREE.FrontSide;
+                            if(raw.includes('fuselage')||raw.includes('nose')||raw.includes('body')){
+                                m.roughness=0.55; m.metalness=0.18;
+                            } else if(raw.includes('metal')||raw.includes('steel')||raw.includes('mirror')){
+                                m.roughness=0.12; m.metalness=0.95;
+                            } else if(raw.includes('missile')){
+                                m.roughness=0.2; m.metalness=0.8;
+                            } else if(raw.includes('tire')){
+                                m.roughness=0.95; m.metalness=0.0;
+                            } else if(raw.includes('emisson')){
+                                m.emissive = new THREE.Color(raw.includes('red')?0xff2200:raw.includes('yellow')?0xff9900:0xffffff);
+                                m.emissiveIntensity = 0.8;
+                            }
                         }
+                        m.needsUpdate=true;
+                    };
+                    const mats = Array.isArray(child.material)?child.material:[child.material];
+                    mats.forEach(applyMat);
+
+                    if(isGlass){ child.renderOrder=10; }
+
+                    if(GEAR_NAMES.has(raw)){
+                        child.userData.origY = child.position.y;
+                        child.userData.origRX = child.rotation.x;
+                        gearMeshes.push(child);
                     }
-                    m.needsUpdate=true;
-                };
-                const mats = Array.isArray(child.material)?child.material:[child.material];
-                mats.forEach(applyMat);
+                    if(AB_NAMES.has(raw)) abLightMeshes.push(child);
 
-                // Glass: render last
-                if(isGlass){ child.renderOrder=10; }
+                    if(raw.includes('fuselage_light')||raw.includes('fuselage_dark')||raw==='none'){
+                        const wp = new THREE.Vector3();
+                        child.getWorldPosition(wp);
+                        if(wp.z > 0.5) leftWingMeshes.push(child);
+                        else if(wp.z < -0.5) rightWingMeshes.push(child);
+                    }
+                });
 
-                // Classify for controls
-                if(GEAR_NAMES.has(raw)){
-                    child.userData.origY = child.position.y;
-                    child.userData.origRX = child.rotation.x;
-                    gearMeshes.push(child);
-                }
-                if(AB_NAMES.has(raw)) abLightMeshes.push(child);
+                // Position afterburner flame at nozzle (rear = -X, center height)
+                const box3 = new THREE.Box3().setFromObject(model);
+                const nozzleX = box3.min.x + 0.5;
+                const nozzleY = box3.min.y + (box3.max.y - box3.min.y) * 0.25;
+                abFlame.position.set(nozzleX - 1.2, nozzleY, 0);
+                abFlame.rotation.z = -Math.PI/2;
+                scene.add(abFlame);
+                abLight.position.set(nozzleX - 0.5, nozzleY, 0);
 
-                // Wing surfaces: use local X position after model transform applied
-                // Aircraft X axis = longitudinal (nose=+X, tail=-X)
-                // Wings spread in Z axis. Trailing edge elevons should be identifiable.
-                // We'll use Body_Fuselage_light / Body_Fuselage_dark split by Z
-                if(raw.includes('fuselage_light')||raw.includes('fuselage_dark')||raw==='none'){
-                    const wp = new THREE.Vector3();
-                    child.getWorldPosition(wp);
-                    if(wp.z > 0.5) leftWingMeshes.push(child);
-                    else if(wp.z < -0.5) rightWingMeshes.push(child);
-                }
-            });
+                scene.add(model);
 
-            // Position afterburner flame at nozzle (rear = -X, center height)
-            const box3 = new THREE.Box3().setFromObject(model);
-            const nozzleX = box3.min.x + 0.5;  // just inside rear
-            const nozzleY = box3.min.y + (box3.max.y - box3.min.y) * 0.25;
-            abFlame.position.set(nozzleX - 1.2, nozzleY, 0);
-            abFlame.rotation.z = -Math.PI/2; // cone opens toward -X (rear)
-            scene.add(abFlame);
-            abLight.position.set(nozzleX - 0.5, nozzleY, 0);
+                document.getElementById('mc').textContent = mc;
+                document.getElementById('pc').textContent = Math.round(pc).toLocaleString();
 
-            scene.add(model);
-
-            document.getElementById('mc').textContent = mc;
-            document.getElementById('pc').textContent = Math.round(pc).toLocaleString();
-
-            const el = document.getElementById('loader');
-            el.style.opacity='0';
-            setTimeout(()=>el.style.display='none', 700);
+                const el = document.getElementById('loader');
+                el.style.opacity='0';
+                setTimeout(()=>el.style.display='none', 700);
+            } catch(err) {
+                console.error('Error processing model:', err);
+                ldrPct.textContent = 'Error: ' + err.message;
+                ldrPct.style.color = '#f85149';
+            }
         },
-        p=>{ if(p.total>0) document.getElementById('ldr-pct').textContent=`Loading... ${Math.round(p.loaded/p.total*100)}%`; },
-        e=>{ document.getElementById('ldr-pct').textContent='Error: '+e.message; document.getElementById('ldr-pct').style.color='#f85149'; }
+        p=>{
+            const loadedMB = (p.loaded / 1048576).toFixed(1);
+            if(p.total > 0){
+                const totalMB = (p.total / 1048576).toFixed(1);
+                const pct = Math.round(p.loaded / p.total * 100);
+                ldrPct.textContent = `Loading 3D Model: ${pct}% (${loadedMB} / ${totalMB} MB)...`;
+            } else {
+                ldrPct.textContent = `Loading 3D Model: ${loadedMB} MB downloaded...`;
+            }
+        },
+        e=>{
+            console.error('GLTF loading error:', e);
+            ldrPct.textContent = 'Failed to load model: ' + (e.message || 'Check server connection');
+            ldrPct.style.color = '#f85149';
+        }
     );
 }
 
@@ -502,7 +515,14 @@ function animate(){
     renderer.render(scene,camera);
 }
 
-window.addEventListener('load',init);
+let hasInit=false;
+function safeInit(){ if(hasInit) return; hasInit=true; init(); }
+if(document.readyState==='complete'||document.readyState==='interactive'){
+    safeInit();
+} else {
+    document.addEventListener('DOMContentLoaded',safeInit);
+    window.addEventListener('load',safeInit);
+}
 </script>
 </body>
 </html>
