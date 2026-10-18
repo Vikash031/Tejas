@@ -70,6 +70,18 @@
           0
         ]
       },
+      "Carrier Approach": {
+        "position": [
+          0,
+          2.6,
+          1.1
+        ],
+        "orientation": [
+          0,
+          -6,
+          0
+        ]
+      },
       "follow": {
         "distance": 26
       },
@@ -444,6 +456,30 @@
             "type": "hide",
             "value": "gearPosition",
             "threshold": 0.98
+          }
+        ]
+      },
+      {
+        "name": "arrestorHook",
+        "parent": "body",
+        "position": [
+          0,
+          -5.5,
+          0.3
+        ],
+        "collisionPoints": [
+          [
+            0,
+            -1.2,
+            -0.8
+          ]
+        ],
+        "animations": [
+          {
+            "type": "rotate",
+            "axis": "X",
+            "value": "airbrakes",
+            "ratio": 45
           }
         ]
       }

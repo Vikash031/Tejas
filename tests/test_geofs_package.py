@@ -85,6 +85,18 @@ class TestGeoFSAircraftPackage(unittest.TestCase):
         self.assertTrue(content.startswith("javascript:"), "Bookmarklet must start with 'javascript:'")
         self.assertLess(len(content), 32767, "Bookmarklet exceeds maximum browser URL length (32KB)")
 
+    def test_carrier_ops_specifications(self):
+        """Validate carrier operations definitions when present."""
+        ac_path = os.path.join(GEOFS_DIR, "aircraft.json")
+        with open(ac_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        record = data[0] if isinstance(data, list) else data
+        part_names = [p["name"] for p in record.get("parts", [])]
+        if "arrestorHook" in part_names:
+            hook_part = next(p for p in record["parts"] if p["name"] == "arrestorHook")
+            self.assertEqual(hook_part["parent"], "body")
+            self.assertIn("Carrier Approach", record["cameras"])
+
 
 if __name__ == "__main__":
     unittest.main()
