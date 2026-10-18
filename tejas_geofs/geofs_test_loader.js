@@ -1,19 +1,12 @@
 /**
- * HAL TEJAS LCA NAVY (Mk1) — GEOFS INJECTOR
- * Authentic Indian Navy Livery, PBR Textures, Transparent Canopy Glass
- * 
- * HOW TO RUN IN GEOFS:
- * 1. Ensure local server is running: python tejas_geofs/viewer/server.py
- * 2. Open https://www.geo-fs.com/geofs.php in your browser (Chrome / Edge / Firefox)
- * 3. Press F12 (or Right-Click -> Inspect) to open Developer Tools -> Console tab
- * 4. Paste this command and hit Enter:
- *    fetch("http://localhost:8080/geofs_test_loader.js").then(r=>r.text()).then(eval);
+ * HAL TEJAS LCA NAVY (Mk1) — GEOFS DIRECT INJECTOR
+ * Direct initialization bypassing internal parseRecord base64 decoding.
  */
 (function loadTejasNavyInGeoFS() {
     console.log("%c[HAL TEJAS LCA NAVY] INJECTING INDIAN NAVY FIGHTER JET...", "color: #ff9933; font-weight: bold; font-size: 14px;");
 
     if (!window.geofs || !geofs.aircraft || !geofs.aircraft.instance) {
-        alert("[HAL TEJAS NAVY] GeoFS simulator not detected! Make sure you are on https://www.geo-fs.com/geofs.php");
+        alert("GeoFS simulator not detected! Make sure you are on https://www.geo-fs.com/geofs.php");
         return;
     }
 
@@ -45,8 +38,15 @@
             "minimumSpeed": 115,
             "cockpitScaleFix": 1,
             "autopilot": true,
+            "Vspeeds": {
+                "VS0": 115,
+                "VS": 125,
+                "VFE": 250,
+                "VNO": 550,
+                "VNE": 750
+            },
             "contactProperties": {
-                "wheel": { "frictionCoef": 2.0, "dynamicFriction": 0.01, "rollingFriction": 0.0001, "lockSpeed": 0.01, "damping": 1 },
+                "wheel": { "frictionCoef": 2.0, "dynamicFriction": 0.01, "rollingFriction": 0.0001, "damping": 1 },
                 "frame": { "frictionCoef": 1.4, "dynamicFriction": 0.01, "damping": 1 },
                 "airfoil": { "frictionCoef": 1.4, "dynamicFriction": 0.01, "damping": 1 }
             },
@@ -58,108 +58,35 @@
                 "cockpit": { "position": [0, 1.8, 1.9], "orientation": [0, -3, 0] },
                 "follow": { "distance": 22 },
                 "Right Wing": { "position": [4.5, -2.5, 1.5], "orientation": [-135, -5, 0] },
-                "Left Wing": { "position": [-4.5, -2.5, 1.5], "orientation": [135, -5, 0] },
-                "Gear View": { "position": [0, 3.5, 0.4], "orientation": [-180, -10, 0] }
+                "Left Wing": { "position": [-4.5, -2.5, 1.5], "orientation": [135, -5, 0] }
             },
             "parts": [
                 {
                     "name": "body",
                     "model": MODEL_URL,
                     "collisionPoints": [
-                        [0, 6.2, 1.2],       // Nose tip
-                        [0, -6.6, 1.4],      // Tail cone / exhaust
-                        [-4.2, -2.5, 1.2],   // Left wingtip
-                        [4.2, -2.5, 1.2],    // Right wingtip
-                        [0, 3.2, 0.0],       // Nose gear contact
-                        [-1.4, -1.2, 0.0],   // Left main gear contact
-                        [1.4, -1.2, 0.0]     // Right main gear contact
+                        [0, 6.2, 1.2], [0, -6.6, 1.4], [-4.2, -2.5, 1.2], [4.2, -2.5, 1.2],
+                        [0, 3.2, 0.0], [-1.4, -1.2, 0.0], [1.4, -1.2, 0.0]
                     ]
                 },
-                {
-                    "name": "mainWingLeft",
-                    "parent": "body",
-                    "type": "airfoil",
-                    "position": [-1.8, -1.2, 1.2],
-                    "area": 19.2,
-                    "aspectRatio": 1.75,
-                    "stalls": true,
-                    "stallIncidence": 26,
-                    "forceDirection": "Z",
-                    "points": { "forceSourcePoint": [0, 0, 0] }
-                },
-                {
-                    "name": "mainWingRight",
-                    "parent": "body",
-                    "type": "airfoil",
-                    "position": [1.8, -1.2, 1.2],
-                    "area": 19.2,
-                    "aspectRatio": 1.75,
-                    "stalls": true,
-                    "stallIncidence": 26,
-                    "forceDirection": "Z",
-                    "points": { "forceSourcePoint": [0, 0, 0] }
-                },
-                {
-                    "name": "verticalFin",
-                    "parent": "body",
-                    "type": "airfoil",
-                    "position": [0, -3.8, 2.8],
-                    "area": 5.8,
-                    "aspectRatio": 1.45,
-                    "stalls": true,
-                    "forceDirection": "X",
-                    "points": { "forceSourcePoint": [0, 0, 0] }
-                },
-                {
-                    "name": "engine",
-                    "type": "engine",
-                    "thrust": 84000,
-                    "forceDirection": "Y",
-                    "points": { "forceSourcePoint": [0, -6.6, 1.35] }
-                },
-                {
-                    "name": "frontWheel",
-                    "parent": "body",
-                    "type": "wheel",
-                    "position": [0, 3.2, 0.6],
-                    "collisionPoints": [[0, 0, -0.6]],
-                    "suspension": { "stiffness": 32, "damping": 7 }
-                },
-                {
-                    "name": "leftGear",
-                    "parent": "body",
-                    "type": "wheel",
-                    "position": [-1.4, -1.2, 0.7],
-                    "collisionPoints": [[0, 0, -0.7]],
-                    "suspension": { "stiffness": 42, "damping": 8 }
-                },
-                {
-                    "name": "rightGear",
-                    "parent": "body",
-                    "type": "wheel",
-                    "position": [1.4, -1.2, 0.7],
-                    "collisionPoints": [[0, 0, -0.7]],
-                    "suspension": { "stiffness": 42, "damping": 8 }
-                }
+                { "name": "mainWingLeft", "parent": "body", "type": "airfoil", "position": [-1.8, -1.2, 1.2], "area": 19.2, "aspectRatio": 1.75, "stalls": true, "stallIncidence": 26, "forceDirection": "Z", "points": { "forceSourcePoint": [0, 0, 0] } },
+                { "name": "mainWingRight", "parent": "body", "type": "airfoil", "position": [1.8, -1.2, 1.2], "area": 19.2, "aspectRatio": 1.75, "stalls": true, "stallIncidence": 26, "forceDirection": "Z", "points": { "forceSourcePoint": [0, 0, 0] } },
+                { "name": "verticalFin", "parent": "body", "type": "airfoil", "position": [0, -3.8, 2.8], "area": 5.8, "aspectRatio": 1.45, "stalls": true, "forceDirection": "X", "points": { "forceSourcePoint": [0, 0, 0] } },
+                { "name": "engine", "type": "engine", "thrust": 84000, "forceDirection": "Y", "points": { "forceSourcePoint": [0, -6.6, 1.35] } },
+                { "name": "frontWheel", "parent": "body", "type": "wheel", "position": [0, 3.2, 0.6], "collisionPoints": [[0, 0, -0.6]], "suspension": { "stiffness": 32, "damping": 7 } },
+                { "name": "leftGear", "parent": "body", "type": "wheel", "position": [-1.4, -1.2, 0.7], "collisionPoints": [[0, 0, -0.7]], "suspension": { "stiffness": 42, "damping": 8 } },
+                { "name": "rightGear", "parent": "body", "type": "wheel", "position": [1.4, -1.2, 0.7], "collisionPoints": [[0, 0, -0.7]], "suspension": { "stiffness": 42, "damping": 8 } }
             ]
         };
 
-        const customRecord = {
-            id: 9999,
-            name: "HAL Tejas LCA Navy",
-            fullPath: "http://localhost:8080/",
-            definition: JSON.stringify([definition])
-        };
-
-        const parsedDefinition = geofs.aircraft.instance.parseRecord(customRecord);
         const currentCoords = geofs.aircraft.instance.getCurrentCoordinates();
         if (typeof geofs.aircraft.instance.unloadAircraft === "function") {
             geofs.aircraft.instance.unloadAircraft();
         }
 
-        geofs.aircraft.instance.fullPath = customRecord.fullPath;
-        geofs.aircraft.instance.aircraftRecord = customRecord;
-        geofs.aircraft.instance.init(parsedDefinition, currentCoords);
+        geofs.aircraft.instance.fullPath = "http://localhost:8080/";
+        geofs.aircraft.instance.aircraftRecord = { id: 9999, name: "HAL Tejas LCA Navy", fullPath: "http://localhost:8080/" };
+        geofs.aircraft.instance.init(definition, currentCoords);
 
         if (geofs.flyToNotification) {
             geofs.flyToNotification("HAL Tejas LCA Navy Active! Press '0'-'9' for Throttle, 'G' for Gear, 'C' for Cockpit.");
