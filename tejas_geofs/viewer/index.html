@@ -3,493 +3,504 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HAL Tejas Mk1 - 3D Interactive Aircraft Viewer</title>
+    <title>HAL Tejas LCA Navy – 3D Interactive Viewer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-dark: #0f1217;
-            --panel-bg: rgba(22, 27, 34, 0.85);
-            --border-color: rgba(255, 255, 255, 0.12);
-            --accent-orange: #ff9933;
-            --accent-green: #138808;
-            --accent-blue: #388bfd;
-            --text-main: #f0f6fc;
-            --text-dim: #8b949e;
+            --bg:#080c14; --panel:rgba(6,10,20,0.93); --border:rgba(70,130,255,0.18);
+            --accent:#ff9933; --blue:#4fa3ff; --green:#138808; --text:#e8edf5; --muted:#6a7a8e;
         }
+        * { box-sizing:border-box; margin:0; padding:0; user-select:none; }
+        body { background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; overflow:hidden; width:100vw; height:100vh; }
+        #canvas-container { position:absolute; inset:0; z-index:1; }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            user-select: none;
-        }
-
-        body {
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            overflow: hidden;
-            width: 100vw;
-            height: 100vh;
-        }
-
-        #canvas-container {
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: 1;
-        }
-
-        /* Top HUD Header */
-        .hud-header {
-            position: absolute;
-            top: 20px;
-            left: 24px;
-            z-index: 10;
-            background: var(--panel-bg);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--border-color);
-            padding: 14px 20px;
-            border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-        }
-
-        .title-row {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .flag-badge {
-            display: flex;
-            flex-direction: column;
-            width: 20px;
-            height: 16px;
-            border-radius: 3px;
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        .flag-saffron { background: var(--accent-orange); flex: 1; }
-        .flag-white { background: #ffffff; flex: 1; position: relative; }
-        .flag-green { background: var(--accent-green); flex: 1; }
-
-        h1 {
-            font-size: 1.15rem;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            color: var(--text-main);
-        }
-
-        .subtitle {
-            font-size: 0.8rem;
-            color: var(--text-dim);
-            margin-top: 4px;
-        }
-
-        /* Control Sidebar */
-        .control-panel {
-            position: absolute;
-            top: 20px;
-            right: 24px;
-            width: 320px;
-            z-index: 10;
-            background: var(--panel-bg);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--border-color);
-            padding: 18px;
-            border-radius: 14px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-            max-height: calc(100vh - 40px);
-            overflow-y: auto;
-        }
-
-        .section-title {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 1.2px;
-            color: var(--accent-orange);
-            font-weight: 700;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .group {
-            margin-bottom: 18px;
-            padding-bottom: 14px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-        }
-        .group:last-child {
-            border-bottom: none;
-            margin-bottom: 0;
-            padding-bottom: 0;
-        }
-
-        .btn-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-        }
-
-        button {
-            background: rgba(255, 255, 255, 0.07);
-            border: 1px solid var(--border-color);
-            color: var(--text-main);
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 0.82rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        button:hover {
-            background: rgba(255, 255, 255, 0.15);
-            border-color: var(--accent-blue);
-        }
-
-        button.active {
-            background: var(--accent-blue);
-            border-color: var(--accent-blue);
-            color: #ffffff;
-        }
-
-        .slider-row {
-            margin-bottom: 10px;
-        }
-        .slider-label {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.8rem;
-            color: var(--text-dim);
-            margin-bottom: 4px;
-        }
-        .slider-val {
-            color: var(--text-main);
-            font-weight: 600;
-        }
-
-        input[type=range] {
-            width: 100%;
-            height: 5px;
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 4px;
-            outline: none;
-            -webkit-appearance: none;
-        }
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            background: var(--accent-orange);
-            cursor: pointer;
-        }
-
-        .spec-table {
-            width: 100%;
-            font-size: 0.78rem;
-            border-collapse: collapse;
-        }
-        .spec-table td {
-            padding: 3px 0;
-        }
-        .spec-table td:first-child {
-            color: var(--text-dim);
-        }
-        .spec-table td:last-child {
-            text-align: right;
-            font-weight: 600;
-        }
-
-        /* Loading Overlay */
+        /* Loader */
         #loader {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--bg-dark);
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            transition: opacity 0.4s ease;
+            position:absolute; inset:0; z-index:200;
+            background:radial-gradient(ellipse at center,#0d1525 0%,#06090f 100%);
+            display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;
+            transition:opacity .7s;
         }
-        .spinner {
-            width: 44px;
-            height: 44px;
-            border: 3px solid rgba(255, 255, 255, 0.1);
-            border-top: 3px solid var(--accent-orange);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin-bottom: 14px;
-        }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .ldr-logo { font-family:'Rajdhani',sans-serif; font-size:2rem; font-weight:700; letter-spacing:4px; background:linear-gradient(135deg,#ff9933,#fff 50%,#138808); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        .ldr-sub { font-size:.72rem; color:var(--muted); letter-spacing:2px; text-transform:uppercase; }
+        .spinner { width:42px; height:42px; border:2px solid rgba(255,153,51,.15); border-top:2px solid #ff9933; border-radius:50%; animation:spin .8s linear infinite; }
+        .ldr-pct { font-size:.82rem; color:var(--accent); font-weight:600; font-family:'Rajdhani',sans-serif; letter-spacing:2px; }
+        @keyframes spin { to{transform:rotate(360deg)} }
 
-        /* Bottom Hint */
-        .bottom-hint {
-            position: absolute;
-            bottom: 16px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 10;
-            font-size: 0.75rem;
-            color: var(--text-dim);
-            background: rgba(22, 27, 34, 0.7);
-            padding: 6px 16px;
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            pointer-events: none;
+        /* Header */
+        .hud {
+            position:absolute; top:14px; left:14px; z-index:10;
+            background:var(--panel); backdrop-filter:blur(20px);
+            border:1px solid var(--border); padding:11px 16px; border-radius:12px;
+            box-shadow:0 4px 28px rgba(0,0,0,.7);
         }
+        .title-row { display:flex; align-items:center; gap:12px; }
+        .flag { display:flex; flex-direction:column; width:22px; height:17px; border-radius:3px; overflow:hidden; border:1px solid rgba(255,255,255,.25); flex-shrink:0; }
+        .flag div { flex:1; }
+        h1 { font-family:'Rajdhani',sans-serif; font-size:1.2rem; font-weight:700; letter-spacing:1px; }
+        .sub { font-size:.68rem; color:var(--muted); margin-top:2px; }
+
+        /* Panel */
+        .panel {
+            position:absolute; top:14px; right:14px; z-index:10; width:280px;
+            background:var(--panel); backdrop-filter:blur(20px);
+            border:1px solid var(--border); border-radius:14px; padding:13px;
+            box-shadow:0 8px 36px rgba(0,0,0,.7);
+            max-height:calc(100vh - 28px); overflow-y:auto;
+        }
+        .panel::-webkit-scrollbar { width:3px; }
+        .panel::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+        .sec { margin-bottom:13px; padding-bottom:11px; border-bottom:1px solid rgba(255,255,255,.05); }
+        .sec:last-child { border-bottom:none; margin-bottom:0; padding-bottom:0; }
+        .sec-t { font-size:.63rem; text-transform:uppercase; letter-spacing:2px; color:var(--blue); font-weight:600; margin-bottom:8px; }
+        .bg { display:grid; grid-template-columns:1fr 1fr; gap:5px; }
+        .bf { grid-column:1/-1; }
+        button {
+            background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.1);
+            color:var(--text); padding:6px 8px; border-radius:7px; font-size:.74rem;
+            font-weight:500; cursor:pointer; font-family:'Inter',sans-serif; transition:all .15s; line-height:1.3;
+        }
+        button:hover { background:rgba(79,163,255,.12); border-color:var(--blue); }
+        button.on { background:rgba(255,153,51,.18); border-color:var(--accent); color:var(--accent); }
+        button.on-b { background:rgba(79,163,255,.18); border-color:var(--blue); color:var(--blue); }
+        .sr { margin-bottom:9px; }
+        .sl { display:flex; justify-content:space-between; font-size:.72rem; color:var(--muted); margin-bottom:4px; }
+        .sv { color:var(--text); font-weight:600; font-family:'Rajdhani',sans-serif; }
+        input[type=range] { width:100%; height:4px; background:rgba(255,255,255,.12); border-radius:4px; outline:none; -webkit-appearance:none; cursor:pointer; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:12px; height:12px; border-radius:50%; background:var(--accent); cursor:pointer; }
+        .sp { width:100%; font-size:.72rem; border-collapse:collapse; }
+        .sp td { padding:2.5px 0; }
+        .sp td:first-child { color:var(--muted); }
+        .sp td:last-child { text-align:right; font-weight:600; }
+
+        .bot { position:absolute; bottom:12px; left:50%; transform:translateX(-50%); z-index:10; font-size:.69rem; color:var(--muted); background:rgba(8,12,20,.8); padding:5px 14px; border-radius:20px; border:1px solid rgba(255,255,255,.06); pointer-events:none; }
+        .stats { position:absolute; bottom:12px; right:14px; z-index:10; font-size:.69rem; color:var(--muted); background:rgba(8,12,20,.8); padding:5px 11px; border-radius:20px; border:1px solid rgba(255,255,255,.06); }
+        .stats span { color:var(--accent); font-weight:600; }
+        #ab-glow { display:none; position:absolute; pointer-events:none; z-index:5; width:100%; height:100%; background:radial-gradient(ellipse at 18% 50%,rgba(255,100,10,.07) 0%,transparent 55%); animation:abp .25s ease infinite alternate; }
+        @keyframes abp { from{opacity:.7} to{opacity:1} }
     </style>
-    <!-- Three.js + GLTFLoader + OrbitControls -->
-    <script src="https://cdn.jsdelivr.net/npm/three@0.145.0/build/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.145.0/examples/js/controls/OrbitControls.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.145.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="lib/three.min.js"></script>
+    <script src="lib/OrbitControls.js"></script>
+    <script src="lib/GLTFLoader.js"></script>
 </head>
 <body>
-    <div id="loader">
-        <div class="spinner"></div>
-        <p style="color: #c9d1d9; font-size: 0.9rem; font-weight: 600;">Loading HAL Tejas Mk1 3D Model...</p>
+<div id="ab-glow"></div>
+
+<div id="loader">
+    <div class="ldr-logo">HAL TEJAS NAVY</div>
+    <div class="ldr-sub">LCA Navy Mk1 &mdash; Indian Navy</div>
+    <div class="spinner"></div>
+    <div class="ldr-pct" id="ldr-pct">Initializing...</div>
+</div>
+
+<div class="hud">
+    <div class="title-row">
+        <div class="flag"><div style="background:#ff9933"></div><div style="background:#fff"></div><div style="background:#138808"></div></div>
+        <div><h1>HAL Tejas LCA Navy</h1><div class="sub">Indian Navy &nbsp;·&nbsp; GeoFS 3D Viewer</div></div>
     </div>
+</div>
 
-    <div class="hud-header">
-        <div class="title-row">
-            <div class="flag-badge">
-                <div class="flag-saffron"></div>
-                <div class="flag-white"></div>
-                <div class="flag-green"></div>
-            </div>
-            <div>
-                <h1>HAL Tejas Mk1</h1>
-                <div class="subtitle">GeoFS Community Aircraft Specification | Indian Air Force</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="control-panel">
-        <!-- View Presets -->
-        <div class="group">
-            <div class="section-title">Camera Views</div>
-            <div class="btn-grid">
-                <button onclick="setCameraView('threeQuarter')">3/4 View</button>
-                <button onclick="setCameraView('top')">Top Planform</button>
-                <button onclick="setCameraView('side')">Side Profile</button>
-                <button onclick="setCameraView('front')">Front Nose</button>
-                <button onclick="setCameraView('cockpit')">Cockpit POV</button>
-                <button onclick="setCameraView('gear')">Landing Gear</button>
-            </div>
-        </div>
-
-        <!-- Animation Testing -->
-        <div class="group">
-            <div class="section-title">Interactive Controls</div>
-            <div class="slider-row">
-                <div class="slider-label"><span>Elevon Pitch</span><span id="pitch-val" class="slider-val">0°</span></div>
-                <input type="range" id="pitch-slider" min="-25" max="25" value="0" oninput="updatePitch(this.value)">
-            </div>
-            <div class="slider-row">
-                <div class="slider-label"><span>Elevon Roll</span><span id="roll-val" class="slider-val">0°</span></div>
-                <input type="range" id="roll-slider" min="-25" max="25" value="0" oninput="updateRoll(this.value)">
-            </div>
-            <div class="slider-row">
-                <div class="slider-label"><span>Rudder Yaw</span><span id="yaw-val" class="slider-val">0°</span></div>
-                <input type="range" id="yaw-slider" min="-25" max="25" value="0" oninput="updateYaw(this.value)">
-            </div>
-            <button id="gear-btn" style="width: 100%; margin-top: 6px;" onclick="toggleGear()">Landing Gear: Deployed</button>
-        </div>
-
-        <!-- Display Toggles -->
-        <div class="group">
-            <div class="section-title">Visual Options</div>
-            <div class="btn-grid">
-                <button id="wireframe-btn" onclick="toggleWireframe()">Wireframe: OFF</button>
-                <button id="autorotate-btn" onclick="toggleAutoRotate()">Auto Orbit: ON</button>
-            </div>
-        </div>
-
-        <!-- Aircraft Specifications -->
-        <div class="group">
-            <div class="section-title">Tejas Mk1 Specs</div>
-            <table class="spec-table">
-                <tr><td>Length:</td><td>13.20 m</td></tr>
-                <tr><td>Wingspan:</td><td>8.20 m</td></tr>
-                <tr><td>Height:</td><td>4.40 m</td></tr>
-                <tr><td>Wing Area:</td><td>38.4 m²</td></tr>
-                <tr><td>Empty Weight:</td><td>6,560 kg</td></tr>
-                <tr><td>Powerplant:</td><td>GE F404-GE-IN20</td></tr>
-                <tr><td>Max Thrust:</td><td>84.0 kN (Reheat)</td></tr>
-                <tr><td>Max Speed:</td><td>Mach 1.6 (GeoFS)</td></tr>
-            </table>
+<div class="panel">
+    <div class="sec">
+        <div class="sec-t">Camera</div>
+        <div class="bg">
+            <button onclick="setCam('orbit')">&#9992; 3/4 View</button>
+            <button onclick="setCam('top')">Top Plan</button>
+            <button onclick="setCam('side')">Side Profile</button>
+            <button onclick="setCam('front')">Nose Front</button>
+            <button onclick="setCam('rear')">Nozzle Rear</button>
+            <button onclick="setCam('gear')">Gear View</button>
+            <button onclick="setCam('cockpit')" class="bf">&#128681; Cockpit POV</button>
         </div>
     </div>
 
-    <div class="bottom-hint">Left Click + Drag: Rotate | Right Click + Drag: Pan | Scroll: Zoom</div>
-    <div id="canvas-container"></div>
+    <div class="sec">
+        <div class="sec-t">Flight Controls</div>
+        <div class="sr"><div class="sl"><span>Elevon Pitch</span><span id="v-p" class="sv">0°</span></div><input type="range" id="s-p" min="-30" max="30" value="0" oninput="setPitch(+this.value)"></div>
+        <div class="sr"><div class="sl"><span>Elevon Roll</span><span id="v-r" class="sv">0°</span></div><input type="range" id="s-r" min="-30" max="30" value="0" oninput="setRoll(+this.value)"></div>
+        <div class="sr"><div class="sl"><span>Rudder Yaw</span><span id="v-y" class="sv">0°</span></div><input type="range" id="s-y" min="-30" max="30" value="0" oninput="setYaw(+this.value)"></div>
+        <button class="bf" onclick="resetCtrls()" style="margin-top:3px">Reset Controls</button>
+    </div>
 
-    <script>
-        let scene, camera, renderer, controls;
-        let aircraftModel = null;
-        let isWireframe = false;
-        let isGearDeployed = true;
-        let autoRotate = true;
+    <div class="sec">
+        <div class="sec-t">Systems</div>
+        <div class="bg">
+            <button id="btn-g" onclick="toggleGear()">&#9654; Gear: DOWN</button>
+            <button id="btn-ab" onclick="toggleAB()">&#128293; Afterburner</button>
+            <button id="btn-rot" onclick="toggleRot()" class="on-b bf">&#8635; Auto Rotate: ON</button>
+        </div>
+    </div>
 
-        // Interactive parts references
-        let leftElevon = null;
-        let rightElevon = null;
-        let rudder = null;
-        let landingGearParts = [];
+    <div class="sec">
+        <div class="sec-t">Display</div>
+        <div class="bg">
+            <button id="btn-w" onclick="toggleWire()">&#9639; Wireframe</button>
+            <button onclick="resetCam()">&#8634; Reset View</button>
+        </div>
+    </div>
 
-        function init() {
-            const container = document.getElementById('canvas-container');
-            scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x0e1117);
-            scene.fog = new THREE.FogExp2(0x0e1117, 0.015);
+    <div class="sec">
+        <div class="sec-t">Tejas Navy Specs</div>
+        <table class="sp">
+            <tr><td>Variant</td><td>LCA Navy Mk1</td></tr>
+            <tr><td>Length</td><td>13.20 m</td></tr>
+            <tr><td>Wingspan</td><td>8.20 m</td></tr>
+            <tr><td>Engine</td><td>GE F404-IN20</td></tr>
+            <tr><td>Thrust (AB)</td><td>84 kN</td></tr>
+            <tr><td>Max Speed</td><td>Mach 1.6</td></tr>
+            <tr><td>Armament</td><td>Astra / R-73</td></tr>
+        </table>
+    </div>
+</div>
 
-            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.set(-14, 8, 12);
+<div class="bot">Drag: Rotate &nbsp;·&nbsp; Right-Drag: Pan &nbsp;·&nbsp; Scroll: Zoom</div>
+<div class="stats">Meshes:<span id="mc">-</span> &nbsp;Polys:<span id="pc">-</span></div>
+<div id="canvas-container"></div>
 
-            renderer = new THREE.WebGLRenderer({ antialias: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-            renderer.outputEncoding = THREE.sRGBEncoding;
-            renderer.shadowMap.enabled = true;
-            container.appendChild(renderer.domElement);
+<script>
+// ─── Glass mesh names (exact, from OBJ geometry keys) ───────────────────────
+const GLASS_NAMES = new Set(['windshield_glass','glass_2','hud_display']);
 
-            controls = new THREE.OrbitControls(camera, renderer.domElement);
-            controls.enableDamping = true;
-            controls.dampingFactor = 0.05;
-            controls.maxDistance = 60;
-            controls.minDistance = 1.5;
-            controls.target.set(0, 0, 0);
+// ─── Gear mesh names ─────────────────────────────────────────────────────────
+const GEAR_NAMES  = new Set(['tire','metalic_grey','cable','steel_pipe']);
 
-            // Lighting
-            const ambient = new THREE.AmbientLight(0xffffff, 0.65);
-            scene.add(ambient);
+// ─── Afterburner emissive meshes (small indicator lights only) ───────────────
+const AB_NAMES    = new Set(['emisson_red','emisson_yellow','emisson_white']);
 
-            const sunLight = new THREE.DirectionalLight(0xfff4e6, 1.4);
-            sunLight.position.set(20, 30, 20);
-            sunLight.castShadow = true;
-            scene.add(sunLight);
+// ─── State ──────────────────────────────────────────────────────────────────
+let scene, camera, renderer, controls, model, clock = new THREE.Clock();
+let isWire=false, isRotating=true, isGearDown=true, isAB=false;
+let gearMeshes=[], abLightMeshes=[], leftWingMeshes=[], rightWingMeshes=[], tailMeshes=[];
+let abLight, abFlame, abFlicker=0;
+let gearAnim=0, gearTarget=0;        // 0=down, 1=retracted
+let pitchRad=0, rollRad=0, yawRad=0;
+const DEG=Math.PI/180;
 
-            const fillLight = new THREE.DirectionalLight(0x8ab4f8, 0.5);
-            fillLight.position.set(-20, 10, -20);
-            scene.add(fillLight);
+// Pivot groups for control surfaces
+let pitchGroup, rollLeftGroup, rollRightGroup, rudderGroup;
 
-            // Runway / Ground Grid
-            const grid = new THREE.GridHelper(60, 60, 0x30363d, 0x1c2128);
-            grid.position.y = -1.5;
-            scene.add(grid);
+// ─── Init ───────────────────────────────────────────────────────────────────
+function init(){
+    const cont = document.getElementById('canvas-container');
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x080c14);
+    scene.fog = new THREE.FogExp2(0x080c14, 0.004);
 
-            // Load 3D Aircraft Model
-            loadTejasModel();
+    camera = new THREE.PerspectiveCamera(42, innerWidth/innerHeight, 0.05, 2000);
+    camera.position.set(0, 9, -20);   // side-rear 3/4 view
 
-            window.addEventListener('resize', onWindowResize);
-            animate();
-        }
+    renderer = new THREE.WebGLRenderer({ antialias:true });
+    renderer.setSize(innerWidth,innerHeight);
+    renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+    renderer.outputEncoding = THREE.sRGBEncoding;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.2;
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    cont.appendChild(renderer.domElement);
 
-        function loadTejasModel() {
-            const loader = new THREE.GLTFLoader();
-            loader.load('../export/tejas_mk1.glb', function(gltf) {
-                aircraftModel = gltf.scene;
-                
-                // In Three.js standard, Y is Up, Z is Forward/Back
-                // Aircraft was generated with GeoFS conventions: +Y Forward, +Z Up
-                // Rotate whole aircraft to match Three.js world (+Y Up, +Z Forward)
-                aircraftModel.rotation.x = -Math.PI / 2;
-                aircraftModel.position.set(0, 0, 0);
+    controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping=true; controls.dampingFactor=0.06;
+    controls.maxDistance=100; controls.minDistance=0.5;
+    controls.target.set(0,2,0);
 
-                scene.add(aircraftModel);
-                document.getElementById('loader').style.opacity = 0;
-                setTimeout(() => document.getElementById('loader').style.display = 'none', 400);
-            }, undefined, function(error) {
-                console.error("Error loading glTF model:", error);
-                document.getElementById('loader').innerHTML = '<p style="color:#f85149;">Error loading 3D model. Ensure tejas_mk1.glb exists.</p>';
-            });
-        }
+    buildLights();
+    buildScene();
+    loadModel();
 
-        function setCameraView(viewName) {
-            autoRotate = false;
-            document.getElementById('autorotate-btn').innerText = "Auto Orbit: OFF";
-            
-            if (viewName === 'threeQuarter') {
-                camera.position.set(-14, 7, 12);
-                controls.target.set(0, 0, 0);
-            } else if (viewName === 'top') {
-                camera.position.set(0, 20, 0.01);
-                controls.target.set(0, 0, 0);
-            } else if (viewName === 'side') {
-                camera.position.set(-18, 0.5, 0);
-                controls.target.set(0, 0, 0);
-            } else if (viewName === 'front') {
-                camera.position.set(0, 0.5, 16);
-                controls.target.set(0, 0, 0);
-            } else if (viewName === 'cockpit') {
-                camera.position.set(0, 0.95, 2.8);
-                controls.target.set(0, 0.95, 8.0);
-            } else if (viewName === 'gear') {
-                camera.position.set(-3.5, -0.9, 2.5);
-                controls.target.set(0, -1.2, 0);
-            }
-            controls.update();
-        }
+    window.addEventListener('resize',()=>{
+        camera.aspect=innerWidth/innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(innerWidth,innerHeight);
+    });
+    animate();
+}
 
-        function updatePitch(val) {
-            document.getElementById('pitch-val').innerText = val + "°";
-        }
+// ─── Lights ──────────────────────────────────────────────────────────────────
+function buildLights(){
+    scene.add(new THREE.AmbientLight(0xb8cce8, 0.5));
 
-        function updateRoll(val) {
-            document.getElementById('roll-val').innerText = val + "°";
-        }
+    const sun = new THREE.DirectionalLight(0xffe8c8, 2.2);
+    sun.position.set(-30, 50, -20);
+    sun.castShadow=true;
+    sun.shadow.mapSize.set(2048,2048);
+    ['near','far','left','right','top','bottom'].forEach(k=>{
+        sun.shadow.camera[k] = k==='near'?1 : k==='far'?200 : (k==='left'||k==='bottom'?-35:35);
+    });
+    sun.shadow.bias=-0.0005;
+    scene.add(sun);
 
-        function updateYaw(val) {
-            document.getElementById('yaw-val').innerText = val + "°";
-        }
+    scene.add(Object.assign(new THREE.DirectionalLight(0x6699cc, 0.7), {position:new THREE.Vector3(25,15,10)}));
+    scene.add(Object.assign(new THREE.DirectionalLight(0xffffff, 0.3), {position:new THREE.Vector3(0,-5,30)}));
+    scene.add(new THREE.HemisphereLight(0x4488bb, 0x111820, 0.4));
 
-        function toggleGear() {
-            isGearDeployed = !isGearDeployed;
-            const btn = document.getElementById('gear-btn');
-            btn.innerText = "Landing Gear: " + (isGearDeployed ? "Deployed" : "Retracted");
-            btn.classList.toggle('active', !isGearDeployed);
-        }
+    // Afterburner point light (at engine nozzle, rear of aircraft)
+    // Aircraft nose is at +X, so nozzle is at -X. Position adjusted after model loads.
+    abLight = new THREE.PointLight(0xff6600, 0, 10, 2);
+    scene.add(abLight);
 
-        function toggleWireframe() {
-            isWireframe = !isWireframe;
-            document.getElementById('wireframe-btn').innerText = "Wireframe: " + (isWireframe ? "ON" : "OFF");
-            if (aircraftModel) {
-                aircraftModel.traverse(child => {
-                    if (child.isMesh && child.material) {
-                        child.material.wireframe = isWireframe;
+    // Afterburner visual cone (built as geometry, added to scene after model load)
+    const abGeo = new THREE.ConeGeometry(0.25, 2.5, 12, 1, true);
+    const abMat = new THREE.MeshBasicMaterial({
+        color:0xff6600, transparent:true, opacity:0.0,
+        side:THREE.BackSide, depthWrite:false
+    });
+    abFlame = new THREE.Mesh(abGeo, abMat);
+    // Will be positioned after model loads
+}
+
+// ─── Scene Environment ────────────────────────────────────────────────────────
+function buildScene(){
+    // Tarmac
+    const g = new THREE.Mesh(
+        new THREE.PlaneGeometry(300,300),
+        new THREE.MeshStandardMaterial({color:0x0c1520,roughness:0.98,metalness:0})
+    );
+    g.rotation.x=-Math.PI/2; g.receiveShadow=true; scene.add(g);
+
+    // Grid
+    scene.add(new THREE.GridHelper(140,100,0x182030,0x141e2a));
+
+    // Runway
+    const rw = new THREE.Mesh(new THREE.PlaneGeometry(5,100), new THREE.MeshStandardMaterial({color:0x141f2e}));
+    rw.rotation.x=-Math.PI/2; rw.position.y=0.001; scene.add(rw);
+
+    for(let i=-45;i<=45;i+=9){
+        const d=new THREE.Mesh(new THREE.PlaneGeometry(0.3,3.5),new THREE.MeshStandardMaterial({color:0x2a3f5a}));
+        d.rotation.x=-Math.PI/2; d.position.set(0,0.002,i); scene.add(d);
+    }
+}
+
+// ─── Load Model ──────────────────────────────────────────────────────────────
+function loadModel(){
+    new THREE.GLTFLoader().load(
+        '../export/tejas_navy_final.glb',
+        (gltf)=>{
+            model = gltf.scene;
+
+            // Auto-fit — normalize to ~13m length
+            const box = new THREE.Box3().setFromObject(model);
+            const sz  = box.getSize(new THREE.Vector3());
+            const ctr = box.getCenter(new THREE.Vector3());
+            const scl = 13 / Math.max(sz.x,sz.y,sz.z);
+            model.scale.setScalar(scl);
+
+            // Recenter: horizontal center, sit on ground
+            const box2 = new THREE.Box3().setFromObject(model);
+            model.position.set(-box2.getCenter(new THREE.Vector3()).x, -box2.min.y, -box2.getCenter(new THREE.Vector3()).z);
+
+            // Create pivot groups for control surfaces (world-space pivots)
+            pitchGroup      = new THREE.Group(); scene.add(pitchGroup);
+            rollLeftGroup   = new THREE.Group(); scene.add(rollLeftGroup);
+            rollRightGroup  = new THREE.Group(); scene.add(rollRightGroup);
+            rudderGroup     = new THREE.Group(); scene.add(rudderGroup);
+
+            let mc=0, pc=0;
+            const glassDeferred=[];
+
+            model.traverse(child=>{
+                if(!child.isMesh) return;
+                mc++; pc += child.geometry.index ? child.geometry.index.count/3 : child.geometry.attributes.position.count/3;
+                child.castShadow=true; child.receiveShadow=true;
+
+                const raw = (child.name || '').toLowerCase().replace(/[\s\-]/g,'_');
+                const isGlass = GLASS_NAMES.has(raw);
+
+                const applyMat = m => {
+                    if(!m || !m.isMaterial) return;
+                    if(isGlass){
+                        m.transparent=true; m.opacity=0.22;
+                        m.roughness=0.0; m.metalness=0.92;
+                        m.side=THREE.DoubleSide; m.depthWrite=false;
+                        m.color.set(0x88bbdd);
+                    } else {
+                        // Force fully opaque — fix trimesh illum 3 transparency bug
+                        m.transparent=false; m.opacity=1; m.depthWrite=true;
+                        m.alphaTest=0; m.side=THREE.FrontSide;
+                        if(raw.includes('fuselage')||raw.includes('nose')||raw.includes('body')){
+                            m.roughness=0.52; m.metalness=0.28;
+                        } else if(raw.includes('metal')||raw.includes('steel')||raw.includes('mirror')){
+                            m.roughness=0.1; m.metalness=0.97;
+                        } else if(raw.includes('missile')){
+                            m.roughness=0.18; m.metalness=0.9;
+                        } else if(raw.includes('tire')){
+                            m.roughness=0.95; m.metalness=0;
+                        } else if(raw.includes('emisson')){
+                            // Small indicator lights – set emissive, keep opaque
+                            m.emissive = new THREE.Color(raw.includes('red')?0xff2200:raw.includes('yellow')?0xff9900:0xffffff);
+                            m.emissiveIntensity = 0.8;  // always slightly on
+                        }
                     }
-                });
-            }
-        }
+                    m.needsUpdate=true;
+                };
+                const mats = Array.isArray(child.material)?child.material:[child.material];
+                mats.forEach(applyMat);
 
-        function toggleAutoRotate() {
-            autoRotate = !autoRotate;
-            document.getElementById('autorotate-btn').innerText = "Auto Orbit: " + (autoRotate ? "ON" : "OFF");
-        }
+                // Glass: render last
+                if(isGlass){ child.renderOrder=10; }
 
-        function onWindowResize() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        }
+                // Classify for controls
+                if(GEAR_NAMES.has(raw)){
+                    child.userData.origY = child.position.y;
+                    child.userData.origRX = child.rotation.x;
+                    gearMeshes.push(child);
+                }
+                if(AB_NAMES.has(raw)) abLightMeshes.push(child);
 
-        function animate() {
-            requestAnimationFrame(animate);
-            if (autoRotate && aircraftModel) {
-                aircraftModel.rotation.z += 0.003;
-            }
-            controls.update();
-            renderer.render(scene, camera);
-        }
+                // Wing surfaces: use local X position after model transform applied
+                // Aircraft X axis = longitudinal (nose=+X, tail=-X)
+                // Wings spread in Z axis. Trailing edge elevons should be identifiable.
+                // We'll use Body_Fuselage_light / Body_Fuselage_dark split by Z
+                if(raw.includes('fuselage_light')||raw.includes('fuselage_dark')||raw==='none'){
+                    const wp = new THREE.Vector3();
+                    child.getWorldPosition(wp);
+                    if(wp.z > 0.5) leftWingMeshes.push(child);
+                    else if(wp.z < -0.5) rightWingMeshes.push(child);
+                }
+            });
 
-        window.onload = init;
-    </script>
+            // Position afterburner flame at nozzle (rear = -X, center height)
+            const box3 = new THREE.Box3().setFromObject(model);
+            const nozzleX = box3.min.x + 0.5;  // just inside rear
+            const nozzleY = box3.min.y + (box3.max.y - box3.min.y) * 0.25;
+            abFlame.position.set(nozzleX - 1.2, nozzleY, 0);
+            abFlame.rotation.z = -Math.PI/2; // cone opens toward -X (rear)
+            scene.add(abFlame);
+            abLight.position.set(nozzleX - 0.5, nozzleY, 0);
+
+            scene.add(model);
+
+            document.getElementById('mc').textContent = mc;
+            document.getElementById('pc').textContent = Math.round(pc).toLocaleString();
+
+            const el = document.getElementById('loader');
+            el.style.opacity='0';
+            setTimeout(()=>el.style.display='none', 700);
+        },
+        p=>{ if(p.total>0) document.getElementById('ldr-pct').textContent=`Loading... ${Math.round(p.loaded/p.total*100)}%`; },
+        e=>{ document.getElementById('ldr-pct').textContent='Error: '+e.message; document.getElementById('ldr-pct').style.color='#f85149'; }
+    );
+}
+
+// ─── Camera Presets ─────────────────────────────────────────────────────────
+// Aircraft nose is at +X, tail at -X, wings along Z, up is +Y
+function setCam(v){
+    stopRot();
+    controls.target.set(0,2,0);
+    switch(v){
+        case 'orbit':   camera.position.set(8,7,14);   controls.target.set(0,2,0); break;
+        case 'top':     camera.position.set(0,22,0.1); controls.target.set(0,2,0); break;
+        case 'side':    camera.position.set(0,3,22);   controls.target.set(0,2,0); break;
+        case 'front':   camera.position.set(18,3,0);   controls.target.set(0,2,0); break;
+        case 'rear':    camera.position.set(-18,3,0);  controls.target.set(0,2,0); break;
+        case 'gear':    camera.position.set(0,-0.5,8); controls.target.set(0,0,0); break;
+        case 'cockpit': camera.position.set(4,5,1);    controls.target.set(16,4,0); break; // cockpit: look from head toward nose (+X)
+    }
+    controls.update();
+}
+function resetCam(){ camera.position.set(8,7,14); controls.target.set(0,2,0); controls.update(); }
+
+// ─── Flight Controls ─────────────────────────────────────────────────────────
+function setPitch(v){
+    pitchRad = v*DEG;
+    document.getElementById('v-p').textContent = v+'°';
+    // Rotate wing trailing-edge half of model slightly (pitch simulation)
+    if(model) model.rotation.z = pitchRad * 0.12; // subtle tilt on whole model
+}
+function setRoll(v){
+    rollRad = v*DEG;
+    document.getElementById('v-r').textContent = v+'°';
+    // Roll: tilt left vs right wing meshes
+    leftWingMeshes.forEach(m=>{ m.rotation.x = rollRad * 0.18; });
+    rightWingMeshes.forEach(m=>{ m.rotation.x = -rollRad * 0.18; });
+}
+function setYaw(v){
+    yawRad = v*DEG;
+    document.getElementById('v-y').textContent = v+'°';
+    // Rudder: rotate emisson meshes (on tail) around Y
+    abLightMeshes.forEach(m=>{ m.rotation.y = yawRad; });
+}
+function resetCtrls(){
+    ['s-p','s-r','s-y'].forEach(id=>document.getElementById(id).value=0);
+    setPitch(0); setRoll(0); setYaw(0);
+    if(model){ model.rotation.z=0; }
+    leftWingMeshes.forEach(m=>m.rotation.x=0);
+    rightWingMeshes.forEach(m=>m.rotation.x=0);
+    abLightMeshes.forEach(m=>m.rotation.y=0);
+}
+
+// ─── Gear ────────────────────────────────────────────────────────────────────
+function toggleGear(){
+    isGearDown=!isGearDown;
+    gearTarget = isGearDown?0:1;
+    const btn=document.getElementById('btn-g');
+    btn.textContent = isGearDown?'▶ Gear: DOWN':'▶ Gear: UP';
+    btn.classList.toggle('on',!isGearDown);
+}
+function animGear(dt){
+    if(Math.abs(gearAnim-gearTarget)<0.005) return;
+    gearAnim += (gearTarget-gearAnim)*Math.min(dt*2.8, 0.15);
+    gearMeshes.forEach(m=>{
+        // Retract: move gear UP into fuselage (+Y), fold leg inward (rotate on Z)
+        m.position.y = (m.userData.origY||0) + gearAnim * 2.8;
+        m.rotation.x = (m.userData.origRX||0) + gearAnim * (Math.PI*0.65);
+        if(gearAnim>0.97) m.visible=false;
+        else m.visible=true;
+    });
+}
+
+// ─── Afterburner ─────────────────────────────────────────────────────────────
+function toggleAB(){
+    isAB=!isAB;
+    const btn=document.getElementById('btn-ab');
+    btn.textContent=isAB?'🔥 AB: ON':'🔥 Afterburner';
+    btn.classList.toggle('on',isAB);
+    document.getElementById('ab-glow').style.display=isAB?'block':'none';
+    if(!isAB){
+        abLight.intensity=0;
+        abFlame.material.opacity=0;
+    }
+}
+
+// ─── Visual ──────────────────────────────────────────────────────────────────
+function toggleWire(){
+    isWire=!isWire;
+    const btn=document.getElementById('btn-w');
+    btn.textContent=isWire?'◼ Wire: ON':'◼ Wireframe';
+    btn.classList.toggle('on',isWire);
+    if(model) model.traverse(c=>{ if(c.isMesh&&c.material){ (Array.isArray(c.material)?c.material:[c.material]).forEach(m=>m.wireframe=isWire); } });
+}
+function toggleRot(){
+    isRotating=!isRotating;
+    const btn=document.getElementById('btn-rot');
+    btn.textContent=isRotating?'↺ Auto Rotate: ON':'↺ Auto Rotate: OFF';
+    btn.classList.toggle('on-b',isRotating);
+}
+function stopRot(){
+    if(!isRotating) return;
+    isRotating=false;
+    document.getElementById('btn-rot').textContent='↺ Auto Rotate: OFF';
+    document.getElementById('btn-rot').classList.remove('on-b');
+}
+
+// ─── Animate ─────────────────────────────────────────────────────────────────
+function animate(){
+    requestAnimationFrame(animate);
+    const dt=clock.getDelta();
+    if(isRotating&&model) model.rotation.y+=0.004;
+    animGear(dt);
+    if(isAB){
+        abFlicker+=dt*18;
+        const f=0.8+Math.sin(abFlicker)*0.12+Math.random()*0.08;
+        abLight.intensity=9*f;
+        abFlame.material.opacity=0.55*f;
+        abFlame.scale.set(f, 0.9+Math.sin(abFlicker*1.3)*0.1, f);
+    }
+    controls.update();
+    renderer.render(scene,camera);
+}
+
+window.addEventListener('load',init);
+</script>
 </body>
 </html>

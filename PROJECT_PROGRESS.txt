@@ -42,8 +42,18 @@ Shader Status: Fixed glTF TEXCOORD_0 and NORMAL primitive attributes.
                     3. Adjusted PBR metallic (0.05) and roughness (0.35) for specular sunlight sheen.
                     4. Recompiled standalone in-memory geofs_test_loader.js (370 KB).
                     5. Automated validation suite: 22 passed, 0 failed.
-- 2026-10-17 20:32: Fixed mesh vertical orientation (nose pointing up instead of forward):
-                    Applied -90° X-axis rotation to all mesh geometry so Cesium's glTF
-                    Y-up convention maps correctly: fuselage (was Y) → -Z (glTF forward),
-                    up (was Z) → Y (glTF up). Aircraft now lies horizontal as expected.
+- 2026-10-17 21:16: High-Fidelity 3D Fighter Overhaul & Stability Release:
+                    1. Replaced fragmented parts with unified, seamless master airframe
+                       eliminating all detached, floating, or rotated control surfaces.
+                    2. Modeled authentic Tejas Mk1 aerodynamics: area-ruled wasp-waist
+                       fuselage, canted bifurcated D-duct intakes with boundary layer
+                       splitter plates, needle nose pitot boom, 50°/62.5° compound delta
+                       wings with LERX and vortex dogtooth notches, wingtip Astra missiles,
+                       underwing weapon pylons, dorsal fin cooling scoop, ventral strakes,
+                       cockpit ejection seat with HUD glass, and 16-petal titanium afterburner nozzle.
+                    3. Aligned texture coordinates with glTF standard (nose at V=1.0, tail at V=0.0).
+                    4. Calibrated tricycle ground contact and thrust alignment (Z=0.0)
+                       guaranteeing straight runway roll with zero left pull.
+                    5. Automated validation suite: 22 / 22 checks PASSED.
+                    6. Synced live with GitHub repository https://github.com/Vikash031/Tejas.git.
 ================================================================================

@@ -1,7 +1,7 @@
 [
   {
     "name": "HAL Tejas Mk1",
-    "description": "HAL Tejas Mk1 single-engine tailless compound-delta fighter of the Indian Air Force",
+    "description": "HAL Tejas Mk1 Indian Air Force multi-role lightweight fighter",
     "scale": 1,
     "mass": 6560,
     "tensorFactor": 0.02,
@@ -11,7 +11,7 @@
       -0.5,
       0.0
     ],
-    "gearTravelTime": 5,
+    "gearTravelTime": 4.5,
     "flapsTravelTime": 0,
     "flapsSteps": 0,
     "airbrakesTravelTime": 1.2,
@@ -210,11 +210,12 @@
       {
         "name": "leftElevon",
         "parent": "body",
+        "model": "leftElevon.glb",
         "type": "airfoil",
         "position": [
-          -2.85,
-          -4.6,
-          0.05
+          -2.525,
+          -4.8,
+          0.1
         ],
         "area": 2.4,
         "forceDirection": "Z",
@@ -243,11 +244,12 @@
       {
         "name": "rightElevon",
         "parent": "body",
+        "model": "rightElevon.glb",
         "type": "airfoil",
         "position": [
-          2.85,
-          -4.6,
-          0.05
+          2.525,
+          -4.8,
+          0.1
         ],
         "area": 2.4,
         "forceDirection": "Z",
@@ -276,11 +278,12 @@
       {
         "name": "rudder",
         "parent": "body",
+        "model": "rudder.glb",
         "type": "airfoil",
         "position": [
           0,
           -4.8,
-          1.7
+          2.25
         ],
         "area": 1.8,
         "forceDirection": "X",
@@ -314,8 +317,35 @@
         }
       },
       {
+        "name": "afterburnerFlame",
+        "parent": "body",
+        "model": "afterburner.glb",
+        "position": [
+          0,
+          -6.6,
+          0.12
+        ],
+        "animations": [
+          {
+            "type": "scale",
+            "axis": "Y",
+            "value": "rpmJet",
+            "min": 8500,
+            "max": 10000,
+            "ratio": 1.5
+          },
+          {
+            "type": "hide",
+            "value": "rpmJet",
+            "threshold": 8500,
+            "lessThan": true
+          }
+        ]
+      },
+      {
         "name": "frontWheel",
         "parent": "body",
+        "model": "frontWheel.glb",
         "type": "wheel",
         "position": [
           0,
@@ -350,6 +380,7 @@
       {
         "name": "leftGear",
         "parent": "body",
+        "model": "leftGear.glb",
         "type": "wheel",
         "position": [
           -1.2,
@@ -369,6 +400,12 @@
         },
         "animations": [
           {
+            "type": "rotate",
+            "axis": "Y",
+            "value": "gearPosition",
+            "ratio": -85
+          },
+          {
             "type": "hide",
             "value": "gearPosition",
             "threshold": 0.98
@@ -378,6 +415,7 @@
       {
         "name": "rightGear",
         "parent": "body",
+        "model": "rightGear.glb",
         "type": "wheel",
         "position": [
           1.2,
@@ -396,6 +434,12 @@
           "damping": 8
         },
         "animations": [
+          {
+            "type": "rotate",
+            "axis": "Y",
+            "value": "gearPosition",
+            "ratio": 85
+          },
           {
             "type": "hide",
             "value": "gearPosition",

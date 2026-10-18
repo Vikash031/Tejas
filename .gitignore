@@ -1,0 +1,12 @@
+# Large source 3D model files (not needed in repo)
+tejas_geofs/3dmodel/
+tejas_geofs/geofs_test_loader.js
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Node
+node_modules/
+package-lock.json
