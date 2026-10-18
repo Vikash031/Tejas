@@ -35,7 +35,8 @@ class GeoFSTestHandler(http.server.SimpleHTTPRequestHandler):
 
 def run_server():
     os.chdir(ROOT_DIR)
-    with socketserver.TCPServer(("", PORT), GeoFSTestHandler) as httpd:
+    socketserver.ThreadingTCPServer.allow_reuse_address = True
+    with socketserver.ThreadingTCPServer(("", PORT), GeoFSTestHandler) as httpd:
         url = f"http://localhost:{PORT}/viewer/index.html"
         print("=" * 65)
         print(" HAL TEJAS Mk1 - LOCAL 3D VIEWER & GEOFS SERVER")

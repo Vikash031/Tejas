@@ -1,7 +1,7 @@
 [
   {
-    "name": "HAL Tejas Mk1",
-    "description": "HAL Tejas Mk1 Indian Air Force multi-role lightweight fighter",
+    "name": "HAL Tejas LCA Navy",
+    "description": "HAL Tejas LCA Navy Mk1 carrier-capable multi-role lightweight fighter \u2014 Indian Navy",
     "scale": 1,
     "mass": 6560,
     "tensorFactor": 0.02,
@@ -113,7 +113,7 @@
     "parts": [
       {
         "name": "body",
-        "model": "body.glb",
+        "model": "export/tejas_navy_geofs.glb",
         "collisionPoints": [
           [
             0,

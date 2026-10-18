@@ -78,7 +78,12 @@ Git Author: Configured to Vikash031 (Vikash031@users.noreply.github.com)
                        - Fixed author attribution from vikashm2 to Vikash031.
                        - Configured repository local user.name "Vikash031" and
                          user.email "Vikash031@users.noreply.github.com".
-                    7. Synced and pushed cleanly to https://github.com/Vikash031/Tejas.git.
+                    7. GeoFS Flight Simulator Integration (Phase 15):
+                       - Generated calibrated tejas_navy_geofs.glb (13.20m length, 8.44m wingspan, wheels sitting at Z=0.0m on tarmac).
+                       - Updated tejas_geofs/aircraft.json and tejas_geofs/geofs_test_loader.js with GE F404-IN20 engine (84 kN reheat thrust), delta aerodynamics, cockpit/follow/wing cameras, and collision meshes.
+                       - Upgraded tejas_geofs/viewer/server.py to ThreadingTCPServer for concurrent streaming.
+                    8. Synced and pushed cleanly to https://github.com/Vikash031/Tejas.git under Vikash031.
 ================================================================================
+
 
 
