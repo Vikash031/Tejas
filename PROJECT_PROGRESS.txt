@@ -115,6 +115,22 @@ Git Author: Configured to Vikash031 (Vikash031@users.noreply.github.com)
                        - Authored tejas_geofs/bookmarklet.txt (self-contained, 0 external network requests).
                        - Updated geofs_test_loader.js with resilient error boundaries and drag & drop.
                     4. Synced and committed to GitHub under Vikash031.
+- 2026-10-18 22:50: Phase 17: CI Pipeline, PR Workflow & Feature Branch feature/lca-navy-carrier-ops:
+                    1. GitHub Badges & Professional Repository Profile:
+                       - Implemented live CI Build status badge, PRs Welcome badge, Open PRs badge,
+                         Open Issues badge, MIT License badge, and GeoFS release badge on README.md.
+                    2. GitHub Actions Automated CI Pipeline (.github/workflows/ci.yml):
+                       - Configured automated test runner triggering on both pushes and pull requests.
+                       - Executes comprehensive test suite across Python 3.11: glTF 2.0 binary checks,
+                         GeoFS definition & aircraft schema validation, Userscript metadata verification,
+                         and bookmarklet length validation.
+                    3. Standardized Pull Request & Issue Templates:
+                       - Created .github/pull_request_template.md with flight simulation verification checklists.
+                       - Created .github/ISSUE_TEMPLATE/bug_report.yml for structured flight dynamics bug reports.
+                    4. Experimental Feature Branch (feature/lca-navy-carrier-ops):
+                       - Added INS Vikrant / INS Vikramaditya Carrier Approach camera mode (down-glideslope view).
+                       - Added operational arrestorHook definition with speedbrake deployment linkage.
+                       - Pushed feature branch to origin for real GitHub Pull Request workflow.
 ================================================================================
 
 
