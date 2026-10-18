@@ -168,12 +168,13 @@ const GEAR_NAMES  = new Set(['tire','metalic_grey','cable','steel_pipe']);
 const AB_NAMES    = new Set(['emisson_red','emisson_yellow','emisson_white']);
 
 // ─── State ──────────────────────────────────────────────────────────────────
-let scene, camera, renderer, controls, model, clock = new THREE.Clock();
+let scene, camera, renderer, controls, model;
 let isWire=false, isRotating=true, isGearDown=true, isAB=false;
-let gearMeshes=[], abLightMeshes=[], leftWingMeshes=[], rightWingMeshes=[], tailMeshes=[];
+let gearMeshes=[], abLightMeshes=[], leftWingMeshes=[], rightWingMeshes=[];
 let abLight, abFlame, abFlicker=0;
-let gearAnim=0, gearTarget=0;        // 0=down, 1=retracted
+let gearAnim=0, gearTarget=0;
 let pitchRad=0, rollRad=0, yawRad=0;
+let clock;
 const DEG=Math.PI/180;
 
 // Pivot groups for control surfaces
@@ -181,6 +182,7 @@ let pitchGroup, rollLeftGroup, rollRightGroup, rudderGroup;
 
 // ─── Init ───────────────────────────────────────────────────────────────────
 function init(){
+    clock = new THREE.Clock();  // init here after THREE is loaded
     const cont = document.getElementById('canvas-container');
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x080c14);
@@ -274,7 +276,7 @@ function buildScene(){
 // ─── Load Model ──────────────────────────────────────────────────────────────
 function loadModel(){
     new THREE.GLTFLoader().load(
-        '../export/tejas_navy_final.glb',
+        '/export/tejas_navy_final.glb',
         (gltf)=>{
             model = gltf.scene;
 
