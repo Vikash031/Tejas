@@ -92,8 +92,30 @@ Git Author: Configured to Vikash031 (Vikash031@users.noreply.github.com)
                        - Removed frame ground collision points at Z=0.0 from body.collisionPoints which was creating rigid body frame friction (1.4) against the tarmac; aircraft now rolls smoothly on low-friction wheels (0.0001).
                        - Added controls.reset(), geofs.aircraft.instance.reset(), and instruments.reset() for clean flight initiation.
                     10. Synced and pushed cleanly to https://github.com/Vikash031/Tejas.git under Vikash031.
+- 2026-10-18 19:15: Phase 16: Chrome Private Network Access (PNA) Bypass & One-Click Userscript:
+                    1. Root Cause Analysis:
+                       - Chrome's Private Network Access (PNA) security policy strictly blocks
+                         public HTTPS origins (https://www.geo-fs.com) from requesting the `loopback`
+                         address space (http://localhost:8080) via script tags, fetch, or XHR.
+                       - When injecting <script src="http://localhost:8080/geofs_test_loader.js">, Chrome
+                         fails immediately with net::ERR_FAILED, leaving loadTejas undefined.
+                       - Chrome bookmarklets fail to trigger if the page lacks active focus or if
+                         they contain external network dependencies.
+                    2. Tampermonkey Userscript (tejas_geofs/tejas_navy.user.js):
+                       - Added automated userscript that runs directly on https://www.geo-fs.com/geofs.php.
+                       - Renders an on-screen floating button: [✈ FLY HAL TEJAS] (Indian Navy aesthetic).
+                       - Leverages GM_xmlhttpRequest with @connect localhost to stream tejas_navy_geofs.glb
+                         from the local server completely immune to browser CORS and PNA blocks.
+                       - Automatically falls back to a native file picker if the local server is stopped.
+                       - Enables window Drag & Drop: drop tejas_navy_geofs.glb straight into GeoFS to fly.
+                       - Multi-stage lifecycle timer loop ([200, 800, 2000]ms) enforcing simulator unpause
+                         (geofs.doPause(0)), brake disengagement, throttle unlock, engine startup,
+                         and camera follow reset (geofs.camera.reset()).
+                    3. Standalone Bookmarklet & Minified Direct Loader:
+                       - Authored tejas_geofs/bookmarklet.txt (self-contained, 0 external network requests).
+                       - Updated geofs_test_loader.js with resilient error boundaries and drag & drop.
+                    4. Synced and committed to GitHub under Vikash031.
 ================================================================================
-
 
 
 

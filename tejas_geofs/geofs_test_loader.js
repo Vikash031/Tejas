@@ -94,38 +94,31 @@
             geofs.aircraft.instance.aircraftRecord = { id: 9999, name: "HAL Tejas LCA Navy", fullPath: "" };
             geofs.aircraft.instance.init(definition, currentCoords);
 
-            // 1. Reset physics, controls, and instruments for clean flight
-            if (typeof controls !== "undefined" && controls.reset) {
-                controls.reset();
-            }
-            if (typeof geofs.aircraft.instance.reset === "function") {
-                geofs.aircraft.instance.reset();
-            }
-            if (typeof instruments !== "undefined" && instruments.reset) {
-                instruments.reset();
-            }
+            // Safety sync loops across Cesium loading frames
+            [200, 800, 2000].forEach(delay => {
+                setTimeout(() => {
+                    try {
+                        if (typeof controls !== "undefined" && controls.reset) controls.reset();
+                        if (typeof geofs.aircraft.instance.reset === "function") geofs.aircraft.instance.reset();
+                        if (typeof instruments !== "undefined" && instruments.reset) instruments.reset();
 
-            // 2. Unpause simulator & resume game loop
-            geofs.doPause(0);
+                        geofs.doPause(0);
 
-            // 3. Disengage autopilot so player has full manual throttle and control
-            if (geofs.autopilot) {
-                geofs.autopilot.turnOff();
-            }
+                        if (geofs.autopilot) geofs.autopilot.turnOff();
 
-            // 4. Release brakes and clear stall state
-            geofs.animation.values.brakes = 0;
-            geofs.animation.values.parkingBrake = 0;
+                        geofs.animation.values.brakes = 0;
+                        geofs.animation.values.parkingBrake = 0;
 
-            // 5. Reset camera to default follow view
-            if (geofs.camera) {
-                geofs.camera.reset();
-            }
+                        if (geofs.camera) geofs.camera.reset();
 
-            // 6. Start GE F404 turbofan engine
-            if (typeof geofs.aircraft.instance.startEngine === "function") {
-                geofs.aircraft.instance.startEngine();
-            }
+                        if (typeof geofs.aircraft.instance.startEngine === "function") {
+                            geofs.aircraft.instance.startEngine();
+                        }
+                    } catch (e) {
+                        console.warn("[HAL TEJAS LCA NAVY] Sync:", e);
+                    }
+                }, delay);
+            });
 
             if (geofs.flyToNotification) {
                 geofs.flyToNotification("HAL Tejas LCA Navy Active! Press '9' for Full Throttle, 'G' for Gear, 'C' for Cockpit.");
@@ -136,6 +129,19 @@
             alert("[HAL TEJAS LCA NAVY] Error: " + err.message);
         }
     }
+
+    // Enable drag and drop
+    window.addEventListener("dragover", (e) => { e.preventDefault(); e.stopPropagation(); });
+    window.addEventListener("drop", (e) => {
+        e.preventDefault(); e.stopPropagation();
+        if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+            const file = e.dataTransfer.files[0];
+            if (file.name.toLowerCase().endsWith(".glb")) {
+                console.log("[HAL TEJAS LCA NAVY] Dropped file:", file.name);
+                injectModel(URL.createObjectURL(file));
+            }
+        }
+    });
 
     // Create file input to pick tejas_navy_geofs.glb locally
     let input = document.getElementById("tejas-file-picker");
