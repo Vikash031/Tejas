@@ -182,40 +182,49 @@ let pitchGroup, rollLeftGroup, rollRightGroup, rudderGroup;
 
 // ─── Init ───────────────────────────────────────────────────────────────────
 function init(){
-    clock = new THREE.Clock();  // init here after THREE is loaded
-    const cont = document.getElementById('canvas-container');
-    scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x080c14);
-    scene.fog = new THREE.FogExp2(0x080c14, 0.004);
+    try {
+        clock = new THREE.Clock();  // init here after THREE is loaded
+        const cont = document.getElementById('canvas-container');
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x080c14);
+        scene.fog = new THREE.FogExp2(0x080c14, 0.004);
 
-    camera = new THREE.PerspectiveCamera(42, innerWidth/innerHeight, 0.05, 2000);
-    camera.position.set(0, 9, -20);   // side-rear 3/4 view
+        camera = new THREE.PerspectiveCamera(42, innerWidth/innerHeight, 0.05, 2000);
+        camera.position.set(0, 9, -20);   // side-rear 3/4 view
 
-    renderer = new THREE.WebGLRenderer({ antialias:true });
-    renderer.setSize(innerWidth,innerHeight);
-    renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-    renderer.outputEncoding = THREE.sRGBEncoding;
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.2;
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    cont.appendChild(renderer.domElement);
-
-    controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.enableDamping=true; controls.dampingFactor=0.06;
-    controls.maxDistance=100; controls.minDistance=0.5;
-    controls.target.set(0,2,0);
-
-    buildLights();
-    buildScene();
-    loadModel();
-
-    window.addEventListener('resize',()=>{
-        camera.aspect=innerWidth/innerHeight;
-        camera.updateProjectionMatrix();
+        renderer = new THREE.WebGLRenderer({ antialias:true });
         renderer.setSize(innerWidth,innerHeight);
-    });
-    animate();
+        renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+        renderer.outputEncoding = THREE.sRGBEncoding;
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.2;
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        cont.appendChild(renderer.domElement);
+
+        controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping=true; controls.dampingFactor=0.06;
+        controls.maxDistance=100; controls.minDistance=0.5;
+        controls.target.set(0,2,0);
+
+        buildLights();
+        buildScene();
+        loadModel();
+
+        window.addEventListener('resize',()=>{
+            camera.aspect=innerWidth/innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(innerWidth,innerHeight);
+        });
+        animate();
+    } catch(err) {
+        console.error('Fatal init error:', err);
+        const ldr = document.getElementById('ldr-pct');
+        if(ldr){
+            ldr.textContent = 'Init Error: ' + err.message;
+            ldr.style.color = '#ff4444';
+        }
+    }
 }
 
 // ─── Lights ──────────────────────────────────────────────────────────────────
@@ -232,8 +241,14 @@ function buildLights(){
     sun.shadow.bias=-0.0005;
     scene.add(sun);
 
-    scene.add(Object.assign(new THREE.DirectionalLight(0x6699cc, 0.7), {position:new THREE.Vector3(25,15,10)}));
-    scene.add(Object.assign(new THREE.DirectionalLight(0xffffff, 0.3), {position:new THREE.Vector3(0,-5,30)}));
+    const fillLight = new THREE.DirectionalLight(0x6699cc, 0.7);
+    fillLight.position.set(25, 15, 10);
+    scene.add(fillLight);
+
+    const bottomLight = new THREE.DirectionalLight(0xffffff, 0.3);
+    bottomLight.position.set(0, -5, 30);
+    scene.add(bottomLight);
+
     scene.add(new THREE.HemisphereLight(0x4488bb, 0x111820, 0.4));
 
     // Afterburner point light (at engine nozzle, rear of aircraft)
