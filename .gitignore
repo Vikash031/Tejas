@@ -1,6 +1,5 @@
-# Large source 3D model files (not needed in repo)
+# Large source 3D model raw files (OBJ / blend scratch)
 tejas_geofs/3dmodel/
-tejas_geofs/geofs_test_loader.js
 
 # Python cache
 __pycache__/

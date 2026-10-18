@@ -1,0 +1,35 @@
+name: 🐛 Bug Report
+description: Report a flight dynamics glitch, texture issue, or GeoFS injection error
+title: "[BUG]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting an issue with the HAL Tejas LCA Navy simulator package!
+  - type: input
+    id: simulator-version
+    attributes:
+      label: GeoFS / Browser Version
+      description: e.g. GeoFS v3.9 on Google Chrome 124 (Windows 11)
+      placeholder: GeoFS v3.9 / Chrome 124
+    validations:
+      required: true
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: Describe the Bug
+      description: What unexpected behavior occurred during flight, taxi, or injection?
+    validations:
+      required: true
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to Reproduce
+      description: How can we replicate this bug?
+      value: |
+        1. Open GeoFS on https://www.geo-fs.com/geofs.php
+        2. Click 'FLY HAL TEJAS' or run loader
+        3. Observe...
+    validations:
+      required: true
