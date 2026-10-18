@@ -72,11 +72,13 @@ Git Author: Configured to Vikash031 (Vikash031@users.noreply.github.com)
                        - Fixed 404 URL mismatch (/tejas_geofs/export -> /export).
                        - Added live MB download progress (% + MB loaded counter).
                        - Added readyState-safe init lifecycle so viewer never hangs on "Initializing...".
-                       - Wrapped GLTF parsing in visual try/catch for immediate error feedback.
+                       - Fixed fatal TypeError in buildLights(): Object.assign on read-only DirectionalLight.position property caused silent crash before loadModel() was ever invoked. Replaced with light.position.set().
+                       - Wrapped init() in robust try/catch with on-screen error banner.
                     6. Git Identity Fix:
                        - Fixed author attribution from vikashm2 to Vikash031.
                        - Configured repository local user.name "Vikash031" and
                          user.email "Vikash031@users.noreply.github.com".
                     7. Synced and pushed cleanly to https://github.com/Vikash031/Tejas.git.
 ================================================================================
+
 
