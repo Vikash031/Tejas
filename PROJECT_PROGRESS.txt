@@ -1,4 +1,19 @@
 ================================================================================
+[PHASE 18] — Repository Restructure & Cleanup (2026-10-19)
+================================================================================
+- Removed duplicate tejas_navy_final.glb (38 MB, identical to tejas_navy_geofs.glb)
+- Removed mesh_map.json (stale build artefact)
+- Removed tejas_geofs/README.md (content merged into root README.md)
+- Removed all __pycache__/ and *.pyc artefacts
+- Created docs/ directory; moved GEOFS_REQUIREMENTS.md, SUBMISSION_PACKAGE.md,
+  CARRIER_OPS.md into docs/
+- Created scripts/ directory at root; moved tejas_geofs/scripts/export_navy_colours.py
+- Updated SUBMISSION_PACKAGE.md: corrected to Navy variant (was IAF), updated
+  file manifest, added carrier ops section, fixed email draft
+- Updated README.md: new structure diagram, Carrier Ops link, scripts/ section
+- Expanded .gitignore: added OS, editor, scratch file patterns
+- Pushed clean reorganised commit to https://github.com/Vikash031/Tejas
+================================================================================
 PROJECT PROGRESS TRACKER: HAL TEJAS Mk1 FOR GEOFS
 ================================================================================
 Aircraft: HAL Tejas Mk1 (Single-seat Lightweight Multi-role Fighter)

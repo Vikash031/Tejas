@@ -1,11 +1,23 @@
-# Large source 3D model raw files (OBJ / blend scratch)
+# ── Raw 3D source assets (large, unoptimised OBJ/FBX) ──────────
 tejas_geofs/3dmodel/
 
-# Python cache
+# ── Python cache ────────────────────────────────────────────────
 __pycache__/
 *.pyc
 *.pyo
 
-# Node
+# ── Node ────────────────────────────────────────────────────────
 node_modules/
 package-lock.json
+
+# ── OS / Editor ─────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# ── Scratch / temp ──────────────────────────────────────────────
+*.log
+*.tmp

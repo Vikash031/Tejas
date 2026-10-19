@@ -14,7 +14,7 @@
 **High-fidelity Indian Navy carrier-capable multi-role lightweight fighter jet package for [GeoFS](https://www.geo-fs.com).**  
 Featuring authentic naval air superiority grey camouflage, transparent cockpit canopy, GE F404 reheat physics, and one-click flight integration.
 
-[✈️ Quick Flight Guide](#-quick-flight-guide) • [🎮 Interactive 3D Viewer](#-interactive-3d-viewer) • [🛠️ Contributing & PRs](#️-contributing--pull-requests) • [📜 Changelog](PROJECT_PROGRESS.txt)
+[✈️ Quick Flight Guide](#️-quick-flight-guide) • [🎮 Flight Controls](#-flight-controls-in-geofs) • [⚓ Carrier Ops](docs/CARRIER_OPS.md) • [🛠️ Contributing](#️-contributing--pull-requests) • [📜 Changelog](PROJECT_PROGRESS.txt)
 
 ---
 
@@ -26,6 +26,7 @@ Featuring authentic naval air superiority grey camouflage, transparent cockpit c
 * **Transparent Canopy:** PBR semi-transparent glass (`alphaMode: BLEND`, 20% opacity) showing cockpit interior, HUD alpha, and ejection seat.
 * **Calibrated Cesium Aerodynamics:** Tailored to Cesium axes (+X forward, +Y up) with zero left-drift, authentic compound delta wing stalling (>26° AoA), and 84 kN reheat thrust.
 * **1-Click GeoFS Integration:** Dedicated Tampermonkey userscript with on-screen `[✈ FLY HAL TEJAS]` button completely bypassing Chrome Private Network Access restrictions.
+* **Carrier Operations:** Full STOBAR ski-jump takeoff and wire-trap recovery for INS Vikrant / INS Vikramaditya. See [Carrier Ops Manual](docs/CARRIER_OPS.md).
 
 ---
 
@@ -52,7 +53,7 @@ Featuring authentic naval air superiority grey camouflage, transparent cockpit c
 | `0` | Idle Throttle | Flight idle (1,000 RPM) |
 | `G` | Toggle Landing Gear | Retract/extend tricycle gear (4.5s cycle) |
 | `B` | Airbrakes / Wheel Brakes | Deploys dorsal speedbrake & wheel brakes |
-| `C` | Cycle Camera | Cockpit POV / Chase Camera / Wing POV |
+| `C` | Cycle Camera | Cockpit POV / Chase Camera / Wing POV / Carrier Approach |
 | `Arrows` / Stick | Pitch & Roll | Compound delta elevon response |
 
 ---
@@ -63,22 +64,26 @@ Featuring authentic naval air superiority grey camouflage, transparent cockpit c
 proj_tejas/
 ├── .github/
 │   ├── workflows/ci.yml             # Automated CI validation pipeline
-│   ├── pull_request_template.md     # Standardized flight-test PR template
-│   └── ISSUE_TEMPLATE/              # Structured bug and feature templates
+│   ├── pull_request_template.md     # Standardised flight-test PR template
+│   └── ISSUE_TEMPLATE/bug_report.yml
+├── docs/
+│   ├── CARRIER_OPS.md               # INS Vikrant / Vikramaditya ops manual
+│   ├── GEOFS_REQUIREMENTS.md        # GeoFS technical specification reference
+│   └── SUBMISSION_PACKAGE.md        # Official submission manifest & email draft
+├── scripts/
+│   └── export_navy_colours.py       # GLB colour export utility
 ├── tejas_geofs/
 │   ├── export/
-│   │   ├── tejas_navy_geofs.glb     # Calibrated 38MB master 3D fighter model
-│   │   └── tejas_navy_final.glb     # High-poly master glTF
+│   │   └── tejas_navy_geofs.glb     # Calibrated 38 MB master 3D model
+│   ├── viewer/                      # WebGL interactive 3D viewer (Three.js)
 │   ├── tejas_navy.user.js           # 1-Click Tampermonkey userscript
 │   ├── geofs_test_loader.js         # Direct in-browser injector
 │   ├── bookmarklet.txt              # Standalone Chrome bookmarklet
 │   ├── aircraft.json                # GeoFS aircraft definition
-│   ├── definition.json              # Detailed physics specification
-│   ├── viewer/                      # WebGL interactive 3D viewer
-│   ├── GEOFS_REQUIREMENTS.md        # Technical developer requirements
-│   └── SUBMISSION_PACKAGE.md        # Official submission manifest
+│   └── definition.json              # Detailed physics specification
 ├── tests/
-│   └── test_geofs_package.py        # Automated test suite (5 passing checks)
+│   └── test_geofs_package.py        # Automated test suite (CI validation)
+├── requirements.txt                 # Python dependencies
 └── PROJECT_PROGRESS.txt             # Chronological engineering audit log
 ```
 
@@ -94,9 +99,10 @@ Contributions, livery variants, and flight tuning PRs are warmly welcomed!
    ```
 2. **Run Validation Tests:**
    ```bash
+   pip install -r requirements.txt
    python -m unittest discover tests -v
    ```
-3. **Submit a Pull Request:** Open your PR against `main`. All CI checks will run automatically to verify your model and physics schemas.
+3. **Submit a Pull Request:** Open your PR against `main`. All CI checks run automatically to verify the model and physics schemas.
 
 ---
 
